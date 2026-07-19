@@ -1,8 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8testlevel01"]
+[gd_scene load_steps=6 format=3 uid="uid://c8testlevel01"]
 
 [ext_resource type="PackedScene" uid="uid://c8player0001" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://c8touchui0001" path="res://scenes/ui/touch_controls.tscn" id="2_touch_ui"]
-[ext_resource type="PackedScene" uid="uid://7ynhxr7xrab5" path="res://scenes/objects/platform.tscn" id="3_platform"]
+
+[ext_resource type="PackedScene" uid="uid://c8platform0001" path="res://scenes/objects/platform.tscn" id="3_platform"]
+[ext_resource type="PackedScene" uid="uid://c8letter0001" path="res://scenes/objects/letter.tscn" id="4_letter"]
+[ext_resource type="PackedScene" uid="uid://c8hud0000001" path="res://scenes/ui/hud.tscn" id="5_hud"]
 
 [node name="TestLevel" type="Node2D"]
 
@@ -53,17 +56,25 @@ position = Vector2(120, 280)
 size = Vector2(260, 30)
 color = Color(0.85, 0.7, 0.3, 1)
 
+[node name="Collectibles" type="Node2D" parent="."]
+
+[node name="Letter1" parent="Collectibles" instance=ExtResource("4_letter")]
+position = Vector2(120, 230)
+letter_id = 1
+
 [node name="Instructions" type="Label" parent="."]
 offset_left = -300.0
 offset_top = 1140.0
 offset_right = 300.0
 offset_bottom = 1200.0
 theme_override_font_sizes/font_size = 20
-text = "Birthday Jump Prototype - Phase 1
+text = "Birthday Jump Prototype - Phase 2
 A / D or ◀ ▶ to Move | Space / JUMP to Jump"
 horizontal_alignment = 1
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector2(0, 1180)
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
 
 [node name="TouchControls" parent="." instance=ExtResource("2_touch_ui")]

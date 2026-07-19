@@ -58,11 +58,11 @@
 
 ### Phase 2: Core Development & Level Design
 - [ ] Block out the entire vertical map using simple Godot collision shapes (StaticBody2D).
-- [ ] Create the "Letter" collectible using `Area2D` and implement a global counter (0/21).
-- [ ] Set up JSON parsing in GDScript to load the personal messages dynamically from `letters.json`.
-- [ ] Create a basic Main Menu scene with "New Game" and "Continue" buttons.
+- [x] Create the "Letter" collectible using `Area2D` and implement a global counter (0/21).
+- [x] Set up JSON parsing in GDScript to load the personal messages dynamically from `letters.json`.
+- [x] Create a basic Main Menu scene with "New Game" and "Continue" buttons.
 - [ ] Strategically place the 21 letters across different platforming challenges.
-- [ ] Implement a smooth `Camera2D` that tracks the player's vertical ascent and descent.
+- [x] Implement a smooth `Camera2D` that tracks the player's vertical ascent and descent.
 
 ### Phase 3: Polish, Art & Audio
 - [ ] Export/screenshot the Godot level blockout and import it into Figma/Photoshop.

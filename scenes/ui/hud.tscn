@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8hud0000001"]
+
+[ext_resource type="Script" path="res://scenes/ui/hud.gd" id="1_hud_script"]
+[ext_resource type="PackedScene" uid="uid://c8letterpopup001" path="res://scenes/ui/letter_popup.tscn" id="2_letter_popup"]
+
+[node name="HUD" type="CanvasLayer"]
+layer = 15
+script = ExtResource("1_hud_script")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopBar" type="PanelContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 70.0
+grow_horizontal = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/TopBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/TopBar/MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="LetterCounter" type="Label" parent="Control/TopBar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "💌 0 / 21"
+vertical_alignment = 1
+
+[node name="MenuBtn" type="Button" parent="Control/TopBar/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(90, 45)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 18
+text = "Menu ⚙"
+
+[node name="LetterPopup" parent="." instance=ExtResource("2_letter_popup")]

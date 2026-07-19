@@ -22,6 +22,10 @@ var jump_buffer_timer: float = 0.0
 func _ready() -> void:
 	if camera:
 		camera.top_level = true
+	if SaveManager and SaveManager.current_save_data.get("has_save", false):
+		var px: float = float(SaveManager.current_save_data.get("player_pos_x", global_position.x))
+		var py: float = float(SaveManager.current_save_data.get("player_pos_y", global_position.y))
+		global_position = Vector2(px, py)
 
 func _process(_delta: float) -> void:
 	if camera:

@@ -1,0 +1,22 @@
+extends CanvasLayer
+
+## HUD script managing in-game counter and UI modals
+@onready var letter_counter_label: Label = $Control/TopBar/MarginContainer/HBoxContainer/LetterCounter
+@onready var menu_btn: Button = $Control/TopBar/MarginContainer/HBoxContainer/MenuBtn
+
+func _ready() -> void:
+	update_counter(LetterManager.collected_letter_ids.size() if LetterManager else 0)
+	if LetterManager:
+		LetterManager.letter_collected.connect(_on_letter_collected)
+	if menu_btn:
+		menu_btn.pressed.connect(_on_menu_pressed)
+
+func update_counter(count: int) -> void:
+	if letter_counter_label:
+		letter_counter_label.text = "💌 %d / 21" % count
+
+func _on_letter_collected(_id: int, _msg: String, total: int) -> void:
+	update_counter(total)
+
+func _on_menu_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
