@@ -1,0 +1,9 @@
+# Godot 4 auto-generated files
+.godot/
+
+# Personal data privacy
+letters.json
+
+# OS files
+.DS_Store
+Thumbs.db

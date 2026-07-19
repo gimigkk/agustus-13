@@ -1,0 +1,87 @@
+# Project Plan: Birthday Jump (Working Title)
+
+## 1. Project Overview
+* **Project Name:** Birthday Jump (Working Title)
+* **Description:** A mobile vertical platformer inspired by "Jump King", designed as a special 21st birthday gift.
+* **Story & Premise:** The game starts with your girlfriend receiving a box of letters from you. She gets so happy and excited before opening them that she accidentally slips on a banana peel and tumbles all the way down to the 1st floor of the level, scattering her letters everywhere! The objective is for her to climb the massive vertical level to retrieve all 21 letters.
+* **Target Audience:** Your girlfriend (for her 21st birthday).
+* **Platform:** Mobile (Android/iOS).
+* **Core Loop:** Platforming upwards, avoiding long falls, collecting 21 letters, and reaching the peak for a birthday surprise.
+
+## 2. Gameplay & Mechanics
+* **Controls:** Simplified touchscreen controls for easy mobile play.
+  * **Left Button:** Move left.
+  * **Right Button:** Move right.
+  * **Jump Button:** Standard jump (no complex charge-jump mechanics).
+* **Progression:** A continuous vertical level design. Falling drops the player to lower platforms, creating tension, but the controls are reliable and straightforward.
+* **Collectibles:** 21 distinct "Letters". They act as milestones and are required (or highly encouraged) to reach the final birthday message.
+
+## 3. Goals & Scope
+* **Must-Haves (MVP):**
+  * Core platforming mechanics (Left, Right, Jump) tuned for mobile.
+  * Invisible Auto-Save System (saves player position and letter count to prevent progress loss if the phone OS closes the app).
+  * Simple Main Menu (just "New Game" and "Continue" hooked up to the auto-save).
+  * Mobile on-screen touch UI (CanvasLayer with TouchScreenButtons).
+  * A single, tall continuous vertical level.
+  * 21 collectible letters scattered throughout the climb.
+  * A final victory area displaying a personalized 21st birthday message.
+* **Art & Visuals:**
+  * **Environment:** Custom hand-painted backgrounds, while still keeping the **Jump King-inspired aesthetic** (atmospheric ruins, dark fantasy, distinct zones). Pipeline: Block out level in Godot -> Export layout to Figma/Photoshop -> Paint the environment -> Re-import as Sprite layers over invisible collision blocks.
+  * **Characters:** Hand-drawn "derpy chibi" versions of you and your girlfriend to make it cute, personal, and funny.
+* **Nice-to-Haves:**
+  * Changing backgrounds as the player gets higher (e.g., moving from a forest to the clouds to space).
+  * Personal inside jokes integrated into the environment.
+  * Cute sound effects and a catchy background track.
+* **Out of Scope:**
+  * Enemies or combat systems.
+  * Multiple save slots, settings screens, or complex UI (keep it strictly to the essentials).
+  * Procedural generation (the level should be hand-crafted for fairness).
+
+## 4. Tech Stack
+* **Game Engine:** Godot Engine (Ideal for 2D mobile games).
+* **Language:** GDScript.
+* **Export:** Mobile (Likely Android APK, unless you plan to sideload onto an iPhone).
+* **Data Privacy / Modularity:** Letter contents will be stored in an external `letters.json` file (added to `.gitignore`). A template `letters.example.json` will be used for the public repo to keep your personal messages completely private.
+
+## 5. Timeline & Deadline
+* **Hard Deadline:** August 6th (One week before her birthday on August 13th).
+* **Time Available:** ~4 Weeks (Current date: July 9th).
+* **Constraints:** Must balance game development with upcoming hackathons.
+* **Strategy:** Prioritize the MVP (movement and invisible blockout). Finish coding quickly so you can spend your limited time painting the environment in Figma without worrying about bugs.
+
+## 6. Key Milestones & Phases
+### Phase 1: Prototyping & Foundation
+- [x] Set up the Godot project with mobile portrait resolution (e.g., 720x1280 or 1080x1920).
+- [x] Implement the `CharacterBody2D` player with basic movement and gravity.
+- [x] Set up the on-screen touch controls and map them to standard input actions.
+- [x] Block out a small test level to tune jump heights, movement speed, and gravity.
+
+### Phase 2: Core Development & Level Design
+- [ ] Block out the entire vertical map using simple Godot collision shapes (StaticBody2D).
+- [ ] Create the "Letter" collectible using `Area2D` and implement a global counter (0/21).
+- [ ] Set up JSON parsing in GDScript to load the personal messages dynamically from `letters.json`.
+- [ ] Create a basic Main Menu scene with "New Game" and "Continue" buttons.
+- [ ] Strategically place the 21 letters across different platforming challenges.
+- [ ] Implement a smooth `Camera2D` that tracks the player's vertical ascent and descent.
+
+### Phase 3: Polish, Art & Audio
+- [ ] Export/screenshot the Godot level blockout and import it into Figma/Photoshop.
+- [ ] Hand-paint the environment art over the blockout and export it as large background slices.
+- [ ] Import the painted backgrounds into Godot and align them perfectly over the invisible collision blocks.
+- [ ] Add the hand-drawn derpy chibi character sprites and animations.
+- [ ] Add player animations (Idle, Walk, Jump, Fall).
+- [ ] Add a UI HUD to show how many letters have been collected.
+- [ ] Implement custom SFX and YouTube-sourced BGM (ensure credits are included at the end).
+
+### Phase 4: The Birthday Surprise & Release
+- [ ] Create the "Summit" scene—a celebratory screen that triggers when the top is reached (checking if all 21 letters are found).
+- [ ] Playtest thoroughly to ensure it is fun and not overly frustrating.
+- [ ] Export Android APK. Delivery: Send via WhatsApp (fallback: let her play it directly on your phone).
+
+## 7. Next Steps to Consider
+* **The Letters:** Do the 21 letters spell something out, or are they just numbered items (1 to 21)?
+* **Godot Setup:** Are you ready to initialize the Godot project and start laying down the foundational movement mechanics?
+
+## 8. Performance Considerations
+* **Memory & Rendering:** Modern phones can easily handle a single massive 2D level. Godot automatically uses **viewport culling**, meaning it only uses processing power to render the tiles and art that are currently visible on the screen. 
+* **Optimization Tip:** To keep things smooth, just make sure you don't have hundreds of active enemies or complex moving platforms computing physics way off-screen. Since your game is mostly static platforms and collectibles, it will run incredibly well on mobile!

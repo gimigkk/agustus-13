@@ -1,0 +1,58 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8touchui0001"]
+
+[ext_resource type="Script" path="res://scenes/ui/touch_controls.gd" id="1_touch_script"]
+
+[node name="TouchControls" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_touch_script")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BtnLeft" type="Button" parent="Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = -160.0
+offset_right = 160.0
+offset_bottom = -30.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 48
+text = "◀"
+
+[node name="BtnRight" type="Button" parent="Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 180.0
+offset_top = -160.0
+offset_right = 310.0
+offset_bottom = -30.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 48
+text = "▶"
+
+[node name="BtnJump" type="Button" parent="Control"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -190.0
+offset_top = -160.0
+offset_right = -30.0
+offset_bottom = -30.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 32
+text = "JUMP"
