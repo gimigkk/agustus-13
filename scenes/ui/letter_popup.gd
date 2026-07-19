@@ -9,8 +9,9 @@ extends CanvasLayer
 func _ready() -> void:
 	control.hide()
 	close_btn.pressed.connect(hide_popup)
-	if LetterManager:
-		LetterManager.letter_popup_requested.connect(show_popup)
+	var lm = get_node_or_null("/root/LetterManager")
+	if lm:
+		lm.letter_popup_requested.connect(show_popup)
 
 func show_popup(letter_id: int, message: String) -> void:
 	title_label.text = "💌 Letter #%d / 21" % letter_id

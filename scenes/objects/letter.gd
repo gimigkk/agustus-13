@@ -19,8 +19,8 @@ func _ready() -> void:
 	
 	if not Engine.is_editor_hint():
 		body_entered.connect(_on_body_entered)
-		# Hide if already collected in this save
-		if LetterManager and LetterManager.is_letter_collected(letter_id):
+		var lm = get_node_or_null("/root/LetterManager")
+		if lm and lm.is_letter_collected(letter_id):
 			queue_free()
 
 func _process(delta: float) -> void:
@@ -34,6 +34,7 @@ func _update_label() -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is CharacterBody2D:
-		if LetterManager:
-			LetterManager.collect_letter(letter_id, body.global_position)
+		var lm = get_node_or_null("/root/LetterManager")
+		if lm:
+			lm.collect_letter(letter_id, body.global_position)
 		queue_free()

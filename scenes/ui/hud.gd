@@ -5,9 +5,11 @@ extends CanvasLayer
 @onready var menu_btn: Button = $Control/TopBar/MarginContainer/HBoxContainer/MenuBtn
 
 func _ready() -> void:
-	update_counter(LetterManager.collected_letter_ids.size() if LetterManager else 0)
-	if LetterManager:
-		LetterManager.letter_collected.connect(_on_letter_collected)
+	var lm = get_node_or_null("/root/LetterManager")
+	var count = lm.collected_letter_ids.size() if lm else 0
+	update_counter(count)
+	if lm:
+		lm.letter_collected.connect(_on_letter_collected)
 	if menu_btn:
 		menu_btn.pressed.connect(_on_menu_pressed)
 

@@ -12,8 +12,9 @@ var collected_letter_ids: Array = []
 func _ready() -> void:
 	load_messages()
 	# Restore collected letters from save
-	if SaveManager and SaveManager.current_save_data.has("collected_letters"):
-		collected_letter_ids = SaveManager.current_save_data["collected_letters"].duplicate()
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.current_save_data.has("collected_letters"):
+		collected_letter_ids = sm.current_save_data["collected_letters"].duplicate()
 
 func load_messages() -> void:
 	var path := "res://letters.json"
@@ -54,8 +55,9 @@ func collect_letter(letter_id: int, player_pos: Vector2 = Vector2.ZERO) -> bool:
 	var msg := get_letter_message(letter_id)
 	
 	# Auto-save game state
-	if SaveManager:
-		SaveManager.save_game(player_pos, collected_letter_ids)
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm:
+		sm.save_game(player_pos, collected_letter_ids)
 		
 	emit_signal("letter_collected", letter_id, msg, collected_letter_ids.size())
 	emit_signal("letter_popup_requested", letter_id, msg)

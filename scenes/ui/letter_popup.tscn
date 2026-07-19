@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://c8letterpopup001"]
+[gd_scene load_steps=2 format=3 uid="uid://dyide17hwhcku"]
 
 [ext_resource type="Script" path="res://scenes/ui/letter_popup.gd" id="1_popup_script"]
 
