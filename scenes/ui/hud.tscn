@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://c8hud0000001"]
 
 [ext_resource type="Script" path="res://scenes/ui/hud.gd" id="1_hud_script"]
-[ext_resource type="PackedScene" uid="uid://c8letterpopup001" path="res://scenes/ui/letter_popup.tscn" id="2_letter_popup"]
+[ext_resource type="PackedScene" uid="uid://c8letterinv0001" path="res://scenes/ui/letter_inventory.tscn" id="2_letter_inv"]
 
 [node name="HUD" type="CanvasLayer"]
 layer = 15
@@ -25,25 +25,27 @@ grow_horizontal = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="Control/TopBar"]
 layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_right = 20
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_right = 15
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Control/TopBar/MarginContainer"]
 layout_mode = 2
 alignment = 1
 
-[node name="LetterCounter" type="Label" parent="Control/TopBar/MarginContainer/HBoxContainer"]
+[node name="LetterCounterBtn" type="Button" parent="Control/TopBar/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 24
-text = "💌 0 / 21"
-vertical_alignment = 1
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 20
+text = "💌 0 / 21  (Open Journal)"
+alignment = 0
 
 [node name="MenuBtn" type="Button" parent="Control/TopBar/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(90, 45)
+custom_minimum_size = Vector2(90, 48)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 18
 text = "Menu ⚙"
 
-[node name="LetterPopup" parent="." instance=ExtResource("2_letter_popup")]
+[node name="LetterInventory" parent="." instance=ExtResource("2_letter_inv")]

@@ -60,7 +60,6 @@ func collect_letter(letter_id: int, player_pos: Vector2 = Vector2.ZERO) -> bool:
 		sm.save_game(player_pos, collected_letter_ids)
 		
 	emit_signal("letter_collected", letter_id, msg, collected_letter_ids.size())
-	emit_signal("letter_popup_requested", letter_id, msg)
 	return true
 
 func reset_progress() -> void:

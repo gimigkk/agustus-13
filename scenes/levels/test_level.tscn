@@ -2,10 +2,9 @@
 
 [ext_resource type="PackedScene" uid="uid://c8player0001" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" uid="uid://c8touchui0001" path="res://scenes/ui/touch_controls.tscn" id="2_touch_ui"]
-
-[ext_resource type="PackedScene" uid="uid://c8platform0001" path="res://scenes/objects/platform.tscn" id="3_platform"]
-[ext_resource type="PackedScene" uid="uid://c8letter0001" path="res://scenes/objects/letter.tscn" id="4_letter"]
-[ext_resource type="PackedScene" uid="uid://c8hud0000001" path="res://scenes/ui/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" uid="uid://7ynhxr7xrab5" path="res://scenes/objects/platform.tscn" id="3_platform"]
+[ext_resource type="PackedScene" path="res://scenes/objects/letter.tscn" id="4_letter"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="5_hud"]
 
 [node name="TestLevel" type="Node2D"]
 
@@ -60,7 +59,6 @@ color = Color(0.85, 0.7, 0.3, 1)
 
 [node name="Letter1" parent="Collectibles" instance=ExtResource("4_letter")]
 position = Vector2(120, 230)
-letter_id = 1
 
 [node name="Instructions" type="Label" parent="."]
 offset_left = -300.0
