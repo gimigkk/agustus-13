@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://c8letterinv0001"]
+[gd_scene load_steps=2 format=3 uid="uid://bqdeshi7ot6to"]
 
 [ext_resource type="Script" path="res://scenes/ui/letter_inventory.gd" id="1_inv_script"]
 

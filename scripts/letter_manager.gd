@@ -2,7 +2,6 @@ extends Node
 
 ## LetterManager Autoload Singleton to handle letter messages and collection state
 signal letter_collected(letter_id: int, message: String, total_collected: int)
-signal letter_popup_requested(letter_id: int, message: String)
 
 const TOTAL_LETTERS: int = 21
 
