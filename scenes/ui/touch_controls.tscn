@@ -7,13 +7,13 @@ layer = 10
 script = ExtResource("1_touch_script")
 
 [node name="Control" type="Control" parent="."]
+visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 
 [node name="BtnLeft" type="Button" parent="Control"]
 layout_mode = 1
@@ -21,11 +21,11 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 30.0
-offset_top = -160.0
-offset_right = 160.0
-offset_bottom = -30.0
+offset_top = -180.0
+offset_right = 170.0
+offset_bottom = -40.0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 36
 text = "◀"
 
 [node name="BtnRight" type="Button" parent="Control"]
@@ -33,12 +33,12 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 180.0
-offset_top = -160.0
-offset_right = 310.0
-offset_bottom = -30.0
+offset_left = 190.0
+offset_top = -180.0
+offset_right = 330.0
+offset_bottom = -40.0
 grow_vertical = 0
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 36
 text = "▶"
 
 [node name="BtnJump" type="Button" parent="Control"]
@@ -48,10 +48,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -190.0
-offset_top = -160.0
+offset_left = -210.0
+offset_top = -180.0
 offset_right = -30.0
-offset_bottom = -30.0
+offset_bottom = -40.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 32

@@ -5,6 +5,8 @@ signal save_loaded(data: Dictionary)
 
 const SAVE_PATH: String = "user://save_data.json"
 
+var force_intro_on_launch: bool = false
+
 var current_save_data: Dictionary = {
 	"player_pos_x": 0.0,
 	"player_pos_y": 1180.0,
@@ -72,3 +74,4 @@ func clear_save() -> void:
 		"collected_letters": [],
 		"has_save": false
 	}
+	force_intro_on_launch = true

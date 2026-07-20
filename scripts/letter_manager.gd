@@ -10,10 +10,15 @@ var collected_letter_ids: Array = []
 
 func _ready() -> void:
 	load_messages()
-	# Restore collected letters from save
+	# Restore collected letters from save (sanitized & deduplicated)
 	var sm = get_node_or_null("/root/SaveManager")
 	if sm and sm.current_save_data.has("collected_letters"):
-		collected_letter_ids = sm.current_save_data["collected_letters"].duplicate()
+		var raw_list: Array = sm.current_save_data["collected_letters"]
+		collected_letter_ids.clear()
+		for item in raw_list:
+			var int_id := int(item)
+			if int_id >= 1 and int_id <= TOTAL_LETTERS and not collected_letter_ids.has(int_id):
+				collected_letter_ids.append(int_id)
 
 func load_messages() -> void:
 	var path := "res://letters.json"
@@ -44,22 +49,50 @@ func get_letter_message(letter_id: int) -> String:
 	return "Letter #%d: A special memory..." % letter_id
 
 func is_letter_collected(letter_id: int) -> bool:
-	return collected_letter_ids.has(letter_id)
+	return collected_letter_ids.has(int(letter_id))
+
+func get_collected_count() -> int:
+	var unique_ids: Array = []
+	for id in collected_letter_ids:
+		var int_id := int(id)
+		if int_id >= 1 and int_id <= TOTAL_LETTERS and not unique_ids.has(int_id):
+			unique_ids.append(int_id)
+	return unique_ids.size()
+
+func is_bundle_collected(start_id: int, count: int) -> bool:
+	for i in range(count):
+		var id := start_id + i
+		if id <= TOTAL_LETTERS and not is_letter_collected(id):
+			return false
+	return true
 
 func collect_letter(letter_id: int, player_pos: Vector2 = Vector2.ZERO) -> bool:
-	if is_letter_collected(letter_id):
-		return false
-		
-	collected_letter_ids.append(letter_id)
-	var msg := get_letter_message(letter_id)
+	return collect_letter_bundle(letter_id, 1, player_pos)
+
+func collect_letter_bundle(start_id: int, count: int, player_pos: Vector2 = Vector2.ZERO) -> bool:
+	var newly_collected := false
+	var last_id := start_id
+	var last_msg := ""
 	
-	# Auto-save game state
-	var sm = get_node_or_null("/root/SaveManager")
-	if sm:
-		sm.save_game(player_pos, collected_letter_ids)
+	for i in range(count):
+		var curr_id := start_id + i
+		if curr_id >= 1 and curr_id <= TOTAL_LETTERS and not is_letter_collected(curr_id):
+			collected_letter_ids.append(curr_id)
+			last_id = curr_id
+			last_msg = get_letter_message(curr_id)
+			newly_collected = true
+			
+	if newly_collected:
+		var total := get_collected_count()
+		# Auto-save game state
+		var sm = get_node_or_null("/root/SaveManager")
+		if sm:
+			sm.save_game(player_pos, collected_letter_ids)
+			
+		emit_signal("letter_collected", last_id, last_msg, total)
+		return true
 		
-	emit_signal("letter_collected", letter_id, msg, collected_letter_ids.size())
-	return true
+	return false
 
 func reset_progress() -> void:
 	collected_letter_ids.clear()

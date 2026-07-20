@@ -3,7 +3,10 @@
 ## 1. Project Overview
 * **Project Name:** Birthday Jump (Working Title)
 * **Description:** A mobile vertical platformer inspired by "Jump King", designed as a special 21st birthday gift.
-* **Story & Premise:** The game starts with your girlfriend receiving a box of letters from you. She gets so happy and excited before opening them that she accidentally slips on a banana peel and tumbles all the way down to the 1st floor of the level, scattering her letters everywhere! The objective is for her to climb the massive vertical level to retrieve all 21 letters.
+* **Story & Premise:** 
+  * **Intro Cutscene:** The player character slips on a banana peel and tumbles deep down into a well shaft, landing at the very bottom of the tower with all 21 birthday letters scattered across the climb.
+  * **Core Climb:** The player climbs the massive vertical tower, retrieving all 21 letters from letter bundles along the way.
+  * **Ending Cutscene:** Upon reaching the well shaft at the summit with all 21 letters, an animated cutscene plays: the player pops out of the well shaft, lands safely on the left platform, does a happy bounce, and auto-runs across to the right side of the screen to deliver all 21 letters to his girlfriend, triggering the 21st Birthday Victory celebration!
 * **Target Audience:** Your girlfriend (for her 21st birthday).
 * **Platform:** Mobile (Android/iOS).
 * **Core Loop:** Platforming upwards, avoiding long falls, collecting 21 letters, and reaching the peak for a birthday surprise.
@@ -13,7 +16,7 @@
   * **Left Button:** Move left.
   * **Right Button:** Move right.
   * **Jump Button:** Standard jump (no complex charge-jump mechanics).
-* **Progression:** A continuous vertical level design. Falling drops the player to lower platforms, creating tension, but the controls are reliable and straightforward.
+* **Progression:** A continuous vertical level design. Falling drops the player to lower platforms, creating Jump King-style tension.
 * **Collectibles:** 21 distinct "Letters". They act as milestones and are required (or highly encouraged) to reach the final birthday message.
 
 ## 3. Goals & Scope
@@ -57,12 +60,14 @@
 - [x] Block out a small test level to tune jump heights, movement speed, and gravity.
 
 ### Phase 2: Core Development & Level Design
-- [ ] Block out the entire vertical map using simple Godot collision shapes (StaticBody2D).
+- [x] Block out the entire vertical map using simple Godot collision shapes (StaticBody2D).
 - [x] Create the "Letter" collectible using `Area2D` and implement a global counter (0/21).
 - [x] Set up JSON parsing in GDScript to load the personal messages dynamically from `letters.json`.
 - [x] Create a basic Main Menu scene with "New Game" and "Continue" buttons.
-- [ ] Strategically place the 21 letters across different platforming challenges.
-- [x] Implement a smooth `Camera2D` that tracks the player's vertical ascent and descent.
+- [x] Strategically place the 21 letters across different platforming challenges (via 7 letter bundles).
+- [x] Implement Jump King screen-by-screen camera snapping.
+- [x] Implement opening narrative intro cutscene (banana slip on summit, immediate parabolic launch into well shaft, skydiving tumble fall with enveloped side-to-side sway, and landing at bottom guided by dynamic `BananaPeel` & `FallTarget` editor props).
+- [x] Implement Summit finish cutscene (automatic finish trigger at peak checking all 21 letters, well pop-out arc, run to girlfriend, and 21st Birthday Victory modal).
 
 ### Phase 3: Polish, Art & Audio
 - [ ] Export/screenshot the Godot level blockout and import it into Figma/Photoshop.
@@ -70,11 +75,11 @@
 - [ ] Import the painted backgrounds into Godot and align them perfectly over the invisible collision blocks.
 - [ ] Add the hand-drawn derpy chibi character sprites and animations.
 - [ ] Add player animations (Idle, Walk, Jump, Fall).
-- [ ] Add a UI HUD to show how many letters have been collected.
+- [x] Add a UI HUD to show how many letters have been collected, with interactive inventory journal modal.
 - [ ] Implement custom SFX and YouTube-sourced BGM (ensure credits are included at the end).
 
 ### Phase 4: The Birthday Surprise & Release
-- [ ] Create the "Summit" scene—a celebratory screen that triggers when the top is reached (checking if all 21 letters are found).
+- [x] Create the "Summit" scene—a celebratory screen that triggers when the top is reached (checking if all 21 letters are found).
 - [ ] Playtest thoroughly to ensure it is fun and not overly frustrating.
 - [ ] Export Android APK. Delivery: Send via WhatsApp (fallback: let her play it directly on your phone).
 
