@@ -75,7 +75,7 @@ func play_intro(level_node: Node2D) -> void:
 	var player_visual = player.get_node_or_null("Visual")
 	if is_instance_valid(player_visual):
 		player_visual.rotation_degrees = 0.0
-		player_visual.scale = Vector2(1.0, 1.0)
+		player_visual.scale = Vector2(-1.0, 1.0)
 
 	# Snap camera instantly centered around summit
 	var camera = player.get_node_or_null("Camera2D") as Camera2D
@@ -89,18 +89,18 @@ func play_intro(level_node: Node2D) -> void:
 	if is_instance_valid(existing_gf):
 		existing_gf.queue_free()
 
-	var gf := ColorRect.new()
+	var gf := TextureRect.new()
 	gf.name = "GirlfriendVisual"
-	gf.size = Vector2(30, 48)
-	gf.color = Color(1.0, 0.45, 0.65, 1.0)
-	gf.global_position = Vector2(gf_start_x, ground_surface_y - 48.0)
+	var gf_tex = load("res://scenes/player/p2_gf.png") as Texture2D
+	if gf_tex:
+		gf.texture = gf_tex
+	gf.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	gf.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	gf.custom_minimum_size = Vector2(60, 60)
+	gf.size = Vector2(60, 60)
+	gf.pivot_offset = Vector2(30, 30)
+	gf.global_position = Vector2(gf_start_x, ground_surface_y - 60.0)
 	level_node.add_child(gf)
-
-	var gf_label := Label.new()
-	gf_label.text = "👧🏻"
-	gf_label.add_theme_font_size_override("font_size", 20)
-	gf_label.position = Vector2(2, 8)
-	gf.add_child(gf_label)
 
 	# 4. Create letter box above player's head
 	var existing_box = player.get_node_or_null("LetterBox")

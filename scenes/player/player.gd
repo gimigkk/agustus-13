@@ -19,7 +19,7 @@ var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 9
 var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
 
-@onready var visual: ColorRect = $Visual
+@onready var visual: Control = $Visual
 @onready var camera: Camera2D = $Camera2D
 
 func _ready() -> void:
@@ -77,7 +77,7 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, direction * speed, current_accel * delta)
 		if visual:
 			visual.pivot_offset = visual.size / 2.0
-			visual.scale.x = -1.0 if direction < 0 else 1.0
+			visual.scale.x = 1.0 if direction < 0 else -1.0
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, current_friction * delta)
 
