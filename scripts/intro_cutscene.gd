@@ -96,10 +96,10 @@ func play_intro(level_node: Node2D) -> void:
 		gf.texture = gf_tex
 	gf.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	gf.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	gf.custom_minimum_size = Vector2(110, 110)
-	gf.size = Vector2(110, 110)
-	gf.pivot_offset = Vector2(55, 55)
-	gf.global_position = Vector2(gf_start_x, ground_surface_y - 110.0)
+	gf.custom_minimum_size = Vector2(65, 65)
+	gf.size = Vector2(65, 65)
+	gf.pivot_offset = Vector2(32.5, 32.5)
+	gf.global_position = Vector2(gf_start_x, ground_surface_y - 65.0)
 	level_node.add_child(gf)
 
 	# 4. Create letter box above player's head

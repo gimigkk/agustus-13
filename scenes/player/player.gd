@@ -82,3 +82,14 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0.0, current_friction * delta)
 
 	move_and_slide()
+
+func _draw() -> void:
+	# Debug rendering for player collision shape
+	var col = get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if col and col.shape is CapsuleShape2D:
+		var shape = col.shape as CapsuleShape2D
+		var radius = shape.radius
+		var height = shape.height
+		var rect = Rect2(-radius, -height * 0.5, radius * 2.0, height)
+		draw_rect(rect, Color(0.2, 0.9, 0.3, 0.35), true)
+		draw_rect(rect, Color(0.0, 1.0, 0.4, 0.9), false, 2.0)
