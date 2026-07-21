@@ -11,12 +11,12 @@ height = 60.0
 script = ExtResource("1_script")
 
 [node name="Visual" type="TextureRect" parent="."]
-custom_minimum_size = Vector2(60, 60)
-offset_left = -30.0
-offset_top = -30.0
-offset_right = 30.0
-offset_bottom = 30.0
-pivot_offset = Vector2(30, 30)
+custom_minimum_size = Vector2(110, 110)
+offset_left = -55.0
+offset_top = -60.0
+offset_right = 55.0
+offset_bottom = 50.0
+pivot_offset = Vector2(55, 55)
 texture = ExtResource("2_p1_player")
 expand_mode = 1
 stretch_mode = 5
