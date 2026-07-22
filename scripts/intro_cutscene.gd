@@ -129,6 +129,13 @@ func play_intro(level_node: Node2D) -> void:
 	# --- GF walks in from right to her spot (1.4s) ---
 	if is_instance_valid(gf):
 		tween.tween_property(gf, "global_position:x", gf_stop_x, 1.4).set_trans(Tween.TRANS_LINEAR)
+		var gf_waddle := level_node.create_tween().set_loops(4)
+		gf_waddle.tween_property(gf, "rotation_degrees", 8.0, 0.175)
+		gf_waddle.tween_property(gf, "rotation_degrees", -8.0, 0.175)
+		gf_waddle.chain().tween_callback(func():
+			if is_instance_valid(gf):
+				gf.rotation_degrees = 0.0
+		)
 
 	# --- PHASE 1: Player walks from off-screen left to banana peel (1.6s) ---
 	tween.tween_property(player, "global_position:x", banana_x, 1.6).set_trans(Tween.TRANS_LINEAR)

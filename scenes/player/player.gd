@@ -54,11 +54,21 @@ func _ready() -> void:
 func get_charge_ratio() -> float:
 	return charge_ratio if is_charging_jump else 0.0
 
-func _process(_delta: float) -> void:
+var last_global_pos_x: float = 0.0
+
+func _process(delta: float) -> void:
 	if camera:
 		# Lock camera horizontally to world origin (x = 0.0), track player vertically only
 		camera.global_position.x = 0.0
 		camera.global_position.y = global_position.y
+
+	# Calculate current horizontal speed (works for physics movement AND cutscene tweens)
+	var calc_vel_x: float = 0.0
+	if delta > 0.0001:
+		calc_vel_x = (global_position.x - last_global_pos_x) / delta
+	last_global_pos_x = global_position.x
+	
+	_update_visual_animation(delta, calc_vel_x)
 
 func _physics_process(delta: float) -> void:
 	var currently_on_floor := is_on_floor()
@@ -111,15 +121,25 @@ func _physics_process(delta: float) -> void:
 
 	if direction != 0.0:
 		velocity.x = move_toward(velocity.x, direction * speed, current_accel * delta)
-		facing_dir = 1.0 if direction < 0 else -1.0
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, current_friction * delta)
+
+	was_on_floor = currently_on_floor
+	move_and_slide()
+
+func _update_visual_animation(delta: float, calc_vel_x: float) -> void:
+	var is_phys_proc := is_physics_processing()
+	var move_speed_x := calc_vel_x if (not is_phys_proc or absf(calc_vel_x) > 15.0) else velocity.x
+	var currently_on_floor := is_on_floor() if is_phys_proc else true
+
+	if absf(move_speed_x) > 15.0:
+		facing_dir = 1.0 if move_speed_x < 0 else -1.0
 
 	# Procedural Walk Animation (Bobbing step, Waddle Tilt & Walk Squish/Stretch)
 	var walk_rotation: float = 0.0
 	var walk_y_offset: float = 0.0
-	if currently_on_floor and absf(velocity.x) > 15.0:
-		walk_anim_time += delta * (absf(velocity.x) / speed) * 18.0
+	if currently_on_floor and absf(move_speed_x) > 15.0:
+		walk_anim_time += delta * (absf(move_speed_x) / speed) * 18.0
 		var sin_val := sin(walk_anim_time)
 		var cos_val := cos(walk_anim_time)
 		
@@ -154,9 +174,6 @@ func _physics_process(delta: float) -> void:
 			visual.position = base_visual_pos + Vector2(0.0, walk_y_offset)
 
 		visual.scale = Vector2(squash_stretch_scale.x * facing_dir, squash_stretch_scale.y)
-
-	was_on_floor = currently_on_floor
-	move_and_slide()
 
 func _execute_charged_jump() -> void:
 	if not is_charging_jump:
