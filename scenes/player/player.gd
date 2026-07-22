@@ -1,8 +1,10 @@
 extends CharacterBody2D
 
-## Player Movement & Jump Controller for Mobile Platforming
+## Player Movement & Jump Controller for Mobile Platforming (Jump King Charging Style)
 @export var speed: float = 320.0
-@export var jump_velocity: float = -800.0
+@export var min_jump_velocity: float = -350.0
+@export var max_jump_velocity: float = -800.0 # Matches original jump power
+@export var max_charge_time: float = 0.55 # Seconds to reach 100% jump power
 @export var acceleration: float = 4500.0
 @export var friction: float = 2000.0
 @export var air_acceleration: float = 800.0 # Slight air adjustment like Jump King
@@ -20,16 +22,25 @@ var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 9
 var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
 
+# Charging state
+var is_charging_jump: bool = false
+var charge_timer: float = 0.0
+var charge_ratio: float = 0.0
+
 # Juice & Animation variables
 var was_on_floor: bool = true
 var facing_dir: float = -1.0 # -1.0 = Facing Right, 1.0 = Facing Left
 var squash_stretch_scale: Vector2 = Vector2(1.0, 1.0)
 var visual_tween: Tween
 
+var base_visual_pos: Vector2 = Vector2(-32.5, -35.0)
+
 @onready var visual: Control = $Visual
 @onready var camera: Camera2D = $Camera2D
 
 func _ready() -> void:
+	if visual:
+		base_visual_pos = visual.position
 	if camera:
 		camera.top_level = true
 	if not Engine.is_editor_hint() and load_save_position:
@@ -38,6 +49,9 @@ func _ready() -> void:
 			var px: float = float(sm.current_save_data.get("player_pos_x", global_position.x))
 			var py: float = float(sm.current_save_data.get("player_pos_y", global_position.y))
 			global_position = Vector2(px, py)
+
+func get_charge_ratio() -> float:
+	return charge_ratio if is_charging_jump else 0.0
 
 func _process(_delta: float) -> void:
 	if camera:
@@ -63,6 +77,9 @@ func _physics_process(delta: float) -> void:
 		# Rotate player sprite smoothly while airborne
 		if visual:
 			visual.rotation_degrees += jump_flip_speed * delta * (-facing_dir)
+			
+		if is_charging_jump:
+			_execute_charged_jump()
 	else:
 		coyote_timer = coyote_time_max
 
@@ -70,20 +87,21 @@ func _physics_process(delta: float) -> void:
 	if jump_buffer_timer > 0.0:
 		jump_buffer_timer -= delta
 
-	# Handle Jump input
-	if Input.is_action_just_pressed("jump"):
-		jump_buffer_timer = jump_buffer_max
-
-	# Execute Jump
-	if jump_buffer_timer > 0.0 and coyote_timer > 0.0:
-		velocity.y = jump_velocity
-		jump_buffer_timer = 0.0
-		coyote_timer = 0.0
-		_on_jumped()
-
-	# Variable jump height cutoff (releasing jump early cuts upward velocity)
-	if Input.is_action_just_released("jump") and velocity.y < 0.0:
-		velocity.y *= 0.45
+	# Jump King Charge Mechanic (charge on hold, launch on release)
+	if currently_on_floor:
+		if Input.is_action_pressed("jump") or jump_buffer_timer > 0.0:
+			if not is_charging_jump:
+				is_charging_jump = true
+				charge_timer = 0.0
+			
+			charge_timer = minf(charge_timer + delta, max_charge_time)
+			charge_ratio = charge_timer / max_charge_time
+			
+			# Crouch down while charging jump power
+			squash_stretch_scale = Vector2(1.0 + charge_ratio * 0.35, 1.0 - charge_ratio * 0.45)
+		else:
+			if is_charging_jump:
+				_execute_charged_jump()
 
 	# Horizontal movement
 	var direction := Input.get_axis("move_left", "move_right")
@@ -96,16 +114,36 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, current_friction * delta)
 
-	# Update visual sprite scale & pivot (feet-anchored when upright on floor, center-anchored when flipping/recovering)
+	# Update visual sprite scale, pivot, and charge shake
 	if visual:
 		if currently_on_floor and absf(visual.rotation_degrees) < 5.0:
 			visual.pivot_offset = Vector2(visual.size.x / 2.0, visual.size.y)
 		else:
 			visual.pivot_offset = visual.size / 2.0
+		
+		# Apply shake proportional to charge ratio
+		if is_charging_jump:
+			var shake_mag := charge_ratio * 4.5
+			visual.position = base_visual_pos + Vector2(randf_range(-shake_mag, shake_mag), randf_range(-shake_mag, shake_mag))
+		else:
+			visual.position = base_visual_pos
+
 		visual.scale = Vector2(squash_stretch_scale.x * facing_dir, squash_stretch_scale.y)
 
 	was_on_floor = currently_on_floor
 	move_and_slide()
+
+func _execute_charged_jump() -> void:
+	if not is_charging_jump:
+		return
+	var launch_vel := lerpf(min_jump_velocity, max_jump_velocity, charge_ratio)
+	velocity.y = launch_vel
+	is_charging_jump = false
+	charge_timer = 0.0
+	charge_ratio = 0.0
+	coyote_timer = 0.0
+	jump_buffer_timer = 0.0
+	_on_jumped()
 
 func _on_jumped() -> void:
 	# Stretch vertically on jump launch (X=0.55, Y=1.45)
