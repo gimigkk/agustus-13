@@ -32,6 +32,7 @@ var was_on_floor: bool = true
 var facing_dir: float = -1.0 # -1.0 = Facing Right, 1.0 = Facing Left
 var squash_stretch_scale: Vector2 = Vector2(1.0, 1.0)
 var visual_tween: Tween
+var walk_anim_time: float = 0.0
 
 var base_visual_pos: Vector2 = Vector2(-32.5, -35.0)
 
@@ -114,19 +115,43 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, current_friction * delta)
 
-	# Update visual sprite scale, pivot, and charge shake
+	# Procedural Walk Animation (Bobbing step, Waddle Tilt & Walk Squish/Stretch)
+	var walk_rotation: float = 0.0
+	var walk_y_offset: float = 0.0
+	if currently_on_floor and absf(velocity.x) > 15.0:
+		walk_anim_time += delta * (absf(velocity.x) / speed) * 18.0
+		var sin_val := sin(walk_anim_time)
+		var cos_val := cos(walk_anim_time)
+		
+		# Combine walk step squish with jump charge crouch
+		if visual_tween == null or not visual_tween.is_running():
+			var step_squish_x = 1.0 + sin_val * 0.08
+			var step_squish_y = 1.0 - sin_val * 0.08
+			if is_charging_jump:
+				squash_stretch_scale = Vector2((1.0 + charge_ratio * 0.35) * step_squish_x, (1.0 - charge_ratio * 0.45) * step_squish_y)
+			else:
+				squash_stretch_scale = Vector2(step_squish_x, step_squish_y)
+			
+		walk_rotation = cos_val * 7.0 * (-facing_dir)
+		walk_y_offset = -absf(sin_val) * 4.0
+	else:
+		walk_anim_time = 0.0
+		walk_y_offset = 0.0
+
+	# Update visual sprite scale, pivot, charge shake & walk animation
 	if visual:
-		if currently_on_floor and absf(visual.rotation_degrees) < 5.0:
+		if currently_on_floor and absf(visual.rotation_degrees) < 15.0:
 			visual.pivot_offset = Vector2(visual.size.x / 2.0, visual.size.y)
+			visual.rotation_degrees = walk_rotation
 		else:
 			visual.pivot_offset = visual.size / 2.0
 		
-		# Apply shake proportional to charge ratio
+		# Apply shake proportional to charge ratio plus walk step bob offset
 		if is_charging_jump:
 			var shake_mag := charge_ratio * 4.5
-			visual.position = base_visual_pos + Vector2(randf_range(-shake_mag, shake_mag), randf_range(-shake_mag, shake_mag))
+			visual.position = base_visual_pos + Vector2(randf_range(-shake_mag, shake_mag), randf_range(-shake_mag, shake_mag) + walk_y_offset)
 		else:
-			visual.position = base_visual_pos
+			visual.position = base_visual_pos + Vector2(0.0, walk_y_offset)
 
 		visual.scale = Vector2(squash_stretch_scale.x * facing_dir, squash_stretch_scale.y)
 
