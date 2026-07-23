@@ -79,7 +79,7 @@ size = Vector2(260, 30)
 color = Color(0.45, 0.5, 0.65, 1)
 
 [node name="Platform14" parent="Environment" instance=ExtResource("3_platform")]
-position = Vector2(-128, -167)
+position = Vector2(-128, -184)
 scale = Vector2(0.52, 2.8)
 size = Vector2(260, 30)
 color = Color(0.45, 0.5, 0.65, 1)
