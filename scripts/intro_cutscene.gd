@@ -55,7 +55,7 @@ func play_intro(level_node: Node2D) -> void:
 	# Calculate player center Y so player feet (30px below center) rest on ground surface
 	var player_ground_center_y: float = ground_surface_y - 30.0
 
-	# 1. Lock player physics & disable collision shape during cutscene
+	# 1. Lock player physics during cutscene
 	player.set_physics_process(false)
 	player.velocity = Vector2.ZERO
 	var player_col = player.get_node_or_null("CollisionShape2D") as CollisionShape2D
@@ -129,19 +129,42 @@ func play_intro(level_node: Node2D) -> void:
 	# --- GF walks in from right to her spot (1.4s) ---
 	if is_instance_valid(gf):
 		tween.tween_property(gf, "global_position:x", gf_stop_x, 1.4).set_trans(Tween.TRANS_LINEAR)
-		var gf_waddle := level_node.create_tween().set_loops(4)
-		gf_waddle.tween_property(gf, "rotation_degrees", 8.0, 0.175)
-		gf_waddle.tween_property(gf, "rotation_degrees", -8.0, 0.175)
-		gf_waddle.chain().tween_callback(func():
+		gf.pivot_offset = Vector2(32.5, 65.0)
+		var gf_base_y = ground_surface_y - 65.0
+		var gf_anim_tween := level_node.create_tween()
+		var gf_steps: int = 14
+		var step_dur: float = 1.4 / float(gf_steps)
+		for step in range(gf_steps):
+			var phase := float(step) * 0.45
+			var sin_val := sin(phase * 16.0)
+			var cos_val := cos(phase * 16.0)
+			var rot := cos_val * 7.0
+			var y_off := -absf(sin_val) * 4.0
+			var sq_x := 1.0 + sin_val * 0.08
+			var sq_y := 1.0 - sin_val * 0.08
+			gf_anim_tween.tween_property(gf, "rotation_degrees", rot, step_dur)
+			gf_anim_tween.parallel().tween_property(gf, "position:y", gf_base_y + y_off, step_dur)
+			gf_anim_tween.parallel().tween_property(gf, "scale", Vector2(sq_x, sq_y), step_dur)
+		gf_anim_tween.chain().tween_callback(func():
 			if is_instance_valid(gf):
 				gf.rotation_degrees = 0.0
+				gf.position.y = gf_base_y
+				gf.scale = Vector2(1.0, 1.0)
 		)
 
-	# --- PHASE 1: Player walks from off-screen left to banana peel (1.6s) ---
-	tween.tween_property(player, "global_position:x", banana_x, 1.6).set_trans(Tween.TRANS_LINEAR)
+	# --- PHASE 1: Player walks from off-screen left to banana peel (0.65s = 320px/s gameplay speed) ---
+	tween.tween_property(player, "global_position:x", banana_x, 0.65).set_trans(Tween.TRANS_LINEAR)
 
-	# --- PHASE 2: SLIP on banana! The slip IS the bounce launch (at t=1.6s) ---
-	var slip_time: float = 1.6
+	# --- PHASE 2: SLIP on banana! The slip IS the bounce launch ---
+	var slip_time: float = 0.65
+
+	tween.tween_callback(func():
+		if is_instance_valid(player):
+			player.set_physics_process(false)
+			var col = player.get_node_or_null("CollisionShape2D") as CollisionShape2D
+			if is_instance_valid(col):
+				col.set_deferred("disabled", true)
+	).set_delay(slip_time)
 
 	# Slip squash (compressed spring before launch)
 	if is_instance_valid(player_visual):

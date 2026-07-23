@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal cutscene_target_reached
+
 ## Player Movement & Jump Controller for Mobile Platforming (Jump King Charging Style)
 @export var speed: float = 320.0
 @export var min_jump_velocity: float = -350.0
@@ -14,6 +16,9 @@ extends CharacterBody2D
 @export var jump_buffer_max: float = 0.12
 @export var jump_flip_speed: float = 720.0 # Airborne spin speed (720 deg/sec = 2 full flips/sec)
 @export var load_save_position: bool = false # Disabled for level blockout testing
+
+# Cutscene target movement
+var cutscene_target_x: float = INF
 
 # Gravity settings
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 980.0)
@@ -51,6 +56,10 @@ func _ready() -> void:
 			var py: float = float(sm.current_save_data.get("player_pos_y", global_position.y))
 			global_position = Vector2(px, py)
 
+func walk_to_target(target_x: float) -> void:
+	cutscene_target_x = target_x
+	set_physics_process(true)
+
 func get_charge_ratio() -> float:
 	return charge_ratio if is_charging_jump else 0.0
 
@@ -62,7 +71,7 @@ func _process(delta: float) -> void:
 		camera.global_position.x = 0.0
 		camera.global_position.y = global_position.y
 
-	# Calculate current horizontal speed (works for physics movement AND cutscene tweens)
+	# Calculate current horizontal speed (works for physics movement AND cutscene position movement)
 	var calc_vel_x: float = 0.0
 	if delta > 0.0001:
 		calc_vel_x = (global_position.x - last_global_pos_x) / delta
@@ -127,7 +136,7 @@ func _physics_process(delta: float) -> void:
 	was_on_floor = currently_on_floor
 	move_and_slide()
 
-func _update_visual_animation(delta: float, calc_vel_x: float) -> void:
+func _update_visual_animation(delta: float, calc_vel_x: float = 0.0) -> void:
 	var is_phys_proc := is_physics_processing()
 	var move_speed_x := calc_vel_x if (not is_phys_proc or absf(calc_vel_x) > 15.0) else velocity.x
 	var currently_on_floor := is_on_floor() if is_phys_proc else true
