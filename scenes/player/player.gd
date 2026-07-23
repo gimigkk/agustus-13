@@ -116,9 +116,6 @@ func _physics_process(delta: float) -> void:
 			
 			charge_timer = minf(charge_timer + delta, max_charge_time)
 			charge_ratio = charge_timer / max_charge_time
-			
-			# Crouch down while charging jump power
-			squash_stretch_scale = Vector2(1.0 + charge_ratio * 0.35, 1.0 - charge_ratio * 0.45)
 		else:
 			if is_charging_jump:
 				_execute_charged_jump()
@@ -147,25 +144,35 @@ func _update_visual_animation(delta: float, calc_vel_x: float = 0.0) -> void:
 	# Procedural Walk Animation (Bobbing step, Waddle Tilt & Walk Squish/Stretch)
 	var walk_rotation: float = 0.0
 	var walk_y_offset: float = 0.0
-	if currently_on_floor and absf(move_speed_x) > 15.0:
-		walk_anim_time += delta * (absf(move_speed_x) / speed) * 18.0
-		var sin_val := sin(walk_anim_time)
-		var cos_val := cos(walk_anim_time)
-		
-		# Combine walk step squish with jump charge crouch
-		if visual_tween == null or not visual_tween.is_running():
+	var target_squash := Vector2(1.0, 1.0)
+
+	if currently_on_floor:
+		if absf(move_speed_x) > 15.0:
+			walk_anim_time += delta * (absf(move_speed_x) / speed) * 18.0
+			var sin_val := sin(walk_anim_time)
+			var cos_val := cos(walk_anim_time)
+			
 			var step_squish_x = 1.0 + sin_val * 0.08
 			var step_squish_y = 1.0 - sin_val * 0.08
 			if is_charging_jump:
-				squash_stretch_scale = Vector2((1.0 + charge_ratio * 0.35) * step_squish_x, (1.0 - charge_ratio * 0.45) * step_squish_y)
+				target_squash = Vector2((1.0 + charge_ratio * 0.35) * step_squish_x, (1.0 - charge_ratio * 0.45) * step_squish_y)
 			else:
-				squash_stretch_scale = Vector2(step_squish_x, step_squish_y)
-			
-		walk_rotation = cos_val * 7.0 * (-facing_dir)
-		walk_y_offset = -absf(sin_val) * 4.0
+				target_squash = Vector2(step_squish_x, step_squish_y)
+				
+			walk_rotation = cos_val * 7.0 * (-facing_dir)
+			walk_y_offset = -absf(sin_val) * 4.0
+		else:
+			walk_anim_time = 0.0
+			walk_y_offset = 0.0
+			if is_charging_jump:
+				target_squash = Vector2(1.0 + charge_ratio * 0.35, 1.0 - charge_ratio * 0.45)
 	else:
 		walk_anim_time = 0.0
 		walk_y_offset = 0.0
+
+	# Smoothly lerp towards target squash scale when no tween is actively driving scale
+	if visual_tween == null or not visual_tween.is_running():
+		squash_stretch_scale = squash_stretch_scale.lerp(target_squash, delta * 20.0)
 
 	# Update visual sprite scale, pivot, charge shake & walk animation
 	if visual:
@@ -214,8 +221,9 @@ func _on_landed() -> void:
 		var land_tween := create_tween()
 		land_tween.tween_property(visual, "rotation_degrees", 0.0, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		
-	# Squash horizontally on impact landing (X=1.4, Y=0.6)
-	_apply_squash_stretch(Vector2(1.4, 0.6), 0.32)
+	# Squash horizontally on impact landing only if not holding jump charge
+	if not Input.is_action_pressed("jump"):
+		_apply_squash_stretch(Vector2(1.4, 0.6), 0.32)
 
 func _apply_squash_stretch(target_squash: Vector2, duration: float) -> void:
 	if visual_tween and visual_tween.is_running():
