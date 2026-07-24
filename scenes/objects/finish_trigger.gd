@@ -102,4 +102,4 @@ func _trigger_victory() -> void:
 func _show_incomplete_prompt(collected: int, required: int) -> void:
 	var hud = get_tree().current_scene.get_node_or_null("HUD")
 	if hud and hud.has_method("show_incomplete_prompt"):
-		hud.show_incomplete_prompt(collected, required_letters)
+		hud.show_incomplete_prompt(collected, required)
