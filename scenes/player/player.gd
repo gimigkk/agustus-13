@@ -1,7 +1,5 @@
 extends CharacterBody2D
 
-signal cutscene_target_reached
-
 ## Player Movement & Jump Controller for Mobile Platforming (Jump King Charging Style)
 @export var speed: float = 320.0
 @export var min_jump_velocity: float = -350.0
@@ -16,9 +14,6 @@ signal cutscene_target_reached
 @export var jump_buffer_max: float = 0.12
 @export var jump_flip_speed: float = 720.0 # Airborne spin speed (720 deg/sec = 2 full flips/sec)
 @export var load_save_position: bool = false # Disabled for level blockout testing
-
-# Cutscene target movement
-var cutscene_target_x: float = INF
 
 # Gravity settings
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 980.0)
@@ -38,6 +33,7 @@ var facing_dir: float = -1.0 # -1.0 = Facing Right, 1.0 = Facing Left
 var squash_stretch_scale: Vector2 = Vector2(1.0, 1.0)
 var visual_tween: Tween
 var walk_anim_time: float = 0.0
+var last_global_pos_x: float = 0.0
 
 var base_visual_pos: Vector2 = Vector2(-32.5, -35.0)
 
@@ -56,14 +52,8 @@ func _ready() -> void:
 			var py: float = float(sm.current_save_data.get("player_pos_y", global_position.y))
 			global_position = Vector2(px, py)
 
-func walk_to_target(target_x: float) -> void:
-	cutscene_target_x = target_x
-	set_physics_process(true)
-
 func get_charge_ratio() -> float:
 	return charge_ratio if is_charging_jump else 0.0
-
-var last_global_pos_x: float = 0.0
 
 func _process(delta: float) -> void:
 	if camera:
