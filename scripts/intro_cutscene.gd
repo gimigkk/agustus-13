@@ -205,6 +205,12 @@ func play_intro(level_node: Node2D) -> void:
 		tween.tween_property(player_visual, "scale", Vector2(1.4, 0.5), 0.1).set_delay(slip_time)
 		tween.tween_property(player_visual, "scale", Vector2(1.0, 1.0), 0.1).set_delay(slip_time + 0.1)
 
+	# Banana peel spins rapidly and flies offscreen on slip!
+	if is_instance_valid(banana_prop):
+		tween.tween_property(banana_prop, "global_position", banana_prop.global_position + Vector2(-350.0, -450.0), 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(slip_time)
+		tween.tween_property(banana_prop, "rotation_degrees", -1080.0, 0.8).set_delay(slip_time)
+		tween.tween_property(banana_prop, "modulate:a", 0.0, 0.3).set_delay(slip_time + 0.5)
+
 	# Box flies up and bursts immediately on slip
 	if is_instance_valid(box):
 		tween.tween_property(box, "position:y", -100.0, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(slip_time)
