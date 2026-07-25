@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://c8testlevel01"]
+[gd_scene load_steps=11 format=3 uid="uid://c8testlevel01"]
 
 [ext_resource type="Script" uid="uid://by76834eke6rf" path="res://scenes/levels/test_level.gd" id="1_level_script"]
 [ext_resource type="PackedScene" uid="uid://c8player0001" path="res://scenes/player/player.tscn" id="1_player"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://cn3t3vi1ocl17" path="res://scenes/objects/finish_trigger.tscn" id="6_finish"]
 [ext_resource type="PackedScene" uid="uid://c7egs5hou1s3y" path="res://scenes/objects/banana_peel.tscn" id="7_cyt5c"]
 [ext_resource type="PackedScene" path="res://scenes/objects/fall_target.tscn" id="8_falltarget"]
+[ext_resource type="PackedScene" path="res://scenes/objects/level_blackout.tscn" id="10_2mu0v"]
 
 [node name="TestLevel" type="Node2D"]
 script = ExtResource("1_level_script")
@@ -453,6 +454,7 @@ position = Vector2(20, 1140)
 [node name="HUD" parent="." instance=ExtResource("5_hud")]
 
 [node name="TouchControls" parent="." instance=ExtResource("2_touch_ui")]
+visible = false
 
 [node name="FinishTrigger" parent="." instance=ExtResource("6_finish")]
 position = Vector2(-2, -4039)
@@ -462,3 +464,7 @@ position = Vector2(-191, -4004)
 
 [node name="FallTarget" parent="." instance=ExtResource("8_falltarget")]
 position = Vector2(2, 1221)
+
+[node name="LevelBlackout" parent="." instance=ExtResource("10_2mu0v")]
+visible = false
+position = Vector2(3, -3877)

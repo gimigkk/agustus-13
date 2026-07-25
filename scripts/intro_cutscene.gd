@@ -4,12 +4,12 @@ extends Node
 signal intro_completed
 
 ## Summit layout positions (read from level)
-@export var walk_start_x: float = -400.0   # Off-screen left
-@export var banana_x: float = -191.0       # Where the banana peel is
-@export var well_x: float = -2.0           # Center of the well hole
-@export var gf_start_x: float = 400.0      # Off-screen right  
-@export var gf_stop_x: float = 150.0       # GF stops on right platform
-@export var summit_y: float = -4017.0      # Fallback summit platform surface Y
+@export var walk_start_x: float = -400.0 # Off-screen left
+@export var banana_x: float = -191.0 # Where the banana peel is
+@export var well_x: float = -2.0 # Center of the well hole
+@export var gf_start_x: float = 400.0 # Off-screen right
+@export var gf_stop_x: float = 150.0 # GF stops on right platform
+@export var summit_y: float = -4017.0 # Fallback summit platform surface Y
 @export var arc_peak_height: float = 200.0 # How high the parabolic bounce goes
 @export var bottom_ground_y: float = 1190.0
 
@@ -52,12 +52,25 @@ func play_intro(level_node: Node2D) -> void:
 	else:
 		print("[IntroCutscene] FallTarget node not found, using fallback Y=", bottom_ground_y)
 
+	# 3. Setup or instantiate LevelBlackout object under the well shaft
+	var blackout = level_node.get_node_or_null("LevelBlackout") as Node2D
+	if not is_instance_valid(blackout):
+		var blackout_scene = load("res://scenes/objects/level_blackout.tscn")
+		if blackout_scene:
+			blackout = blackout_scene.instantiate() as Node2D
+			blackout.position = Vector2(well_x, ground_surface_y + 80.0)
+			level_node.add_child(blackout)
+	
+	if is_instance_valid(blackout) and blackout.has_method("blackout_instant"):
+		blackout.blackout_instant()
+
 	# Calculate player center Y so player feet (30px below center) rest on ground surface
 	var player_ground_center_y: float = ground_surface_y - 30.0
 
-	# 1. Lock player physics during cutscene
+	# 1. Lock player physics during cutscene & set z_index behind blackout (LevelBlackout z_index = 20)
 	player.set_physics_process(false)
 	player.velocity = Vector2.ZERO
+	player.z_index = 0
 	var player_col = player.get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if is_instance_valid(player_col):
 		player_col.set_deferred("disabled", true)
@@ -239,7 +252,7 @@ func play_intro(level_node: Node2D) -> void:
 	).set_delay(slip_time)
 
 	# --- PHASE 3: PARABOLIC ARC — slip launches player into the well ---
-	var arc_start: float = slip_time  # Immediate! Slip = launch
+	var arc_start: float = slip_time # Immediate! Slip = launch
 	var arc_duration: float = 1.0
 	var half_arc: float = arc_duration * 0.5
 	var peak_y: float = player_ground_center_y - arc_peak_height
@@ -260,7 +273,15 @@ func play_intro(level_node: Node2D) -> void:
 	# --- PHASE 4: SKYDIVE FALL from well down to bottom ---
 	var fall_start: float = arc_start + arc_duration
 	var fall_duration: float = 3.0
+	var blackout_delay: float = 1.1
+	var blackout_fade_dur: float = fall_duration - blackout_delay
 	var player_bottom_landing_y: float = bottom_ground_y - 30.0
+
+	# Delay blackout fade out slightly (0.6s) after player enters well, then fade out over remaining 2.4s
+	tween.tween_callback(func():
+		if is_instance_valid(blackout) and blackout.has_method("fade_out"):
+			blackout.fade_out(blackout_fade_dur)
+	).set_delay(fall_start + blackout_delay)
 
 	# Plunge straight down
 	tween.tween_property(player, "global_position:y", player_bottom_landing_y, fall_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN).set_delay(fall_start)
