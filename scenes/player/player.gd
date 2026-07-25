@@ -11,7 +11,6 @@ extends CharacterBody2D
 @export var gravity_scale: float = 1.3 # Gentle base gravity multiplier
 @export var fall_gravity_multiplier: float = 1.4 # Natural snappy fall gravity
 @export var coyote_time_max: float = 0.12
-@export var jump_buffer_max: float = 0.12
 @export var jump_flip_speed: float = 720.0 # Airborne spin speed (720 deg/sec = 2 full flips/sec)
 @export var load_save_position: bool = false # Disabled for level blockout testing
 
@@ -20,7 +19,6 @@ var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 9
 
 # State timers
 var coyote_timer: float = 0.0
-var jump_buffer_timer: float = 0.0
 
 # Charging state
 var is_charging_jump: bool = false
@@ -84,22 +82,20 @@ func _physics_process(delta: float) -> void:
 		velocity.y += current_gravity * delta
 		coyote_timer -= delta
 		
+		# Reset ground charge state while airborne so holding jump pre-arms for landing
+		is_charging_jump = false
+		charge_timer = 0.0
+		charge_ratio = 0.0
+		
 		# Rotate player sprite smoothly while airborne
 		if visual:
 			visual.rotation_degrees += jump_flip_speed * delta * (-facing_dir)
-			
-		if is_charging_jump:
-			_execute_charged_jump()
 	else:
 		coyote_timer = coyote_time_max
 
-	# Update jump buffer timer
-	if jump_buffer_timer > 0.0:
-		jump_buffer_timer -= delta
-
-	# Jump King Charge Mechanic (charge on hold, launch on release)
+	# Jump King Charge Mechanic (Supports pre-holding in air: charges whenever on floor and jump is held)
 	if currently_on_floor:
-		if Input.is_action_pressed("jump") or jump_buffer_timer > 0.0:
+		if Input.is_action_pressed("jump"):
 			if not is_charging_jump:
 				is_charging_jump = true
 				charge_timer = 0.0
@@ -190,7 +186,6 @@ func _execute_charged_jump() -> void:
 	charge_timer = 0.0
 	charge_ratio = 0.0
 	coyote_timer = 0.0
-	jump_buffer_timer = 0.0
 	_on_jumped()
 
 func _on_jumped() -> void:

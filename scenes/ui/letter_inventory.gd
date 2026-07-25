@@ -1,7 +1,5 @@
 extends CanvasLayer
 
-const UIThemeHelper = preload("res://scenes/ui/ui_theme_helper.gd")
-
 ## Letter Inventory modal - 3x7 Grid of 21 Letter slots
 @onready var control: Control = $Control
 @onready var title_label: Label = $Control/Panel/MarginContainer/VBoxContainer/Header/TitleLabel
@@ -10,9 +8,7 @@ const UIThemeHelper = preload("res://scenes/ui/ui_theme_helper.gd")
 
 func _ready() -> void:
 	control.hide()
-	if close_btn:
-		UIThemeHelper.apply_fake_3d_style(close_btn, Color(0.18, 0.15, 0.28, 0.95), Color(0.9, 0.7, 0.2, 1.0), Color(1.0, 0.85, 0.4, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 24)
-		close_btn.pressed.connect(hide_inventory)
+	close_btn.pressed.connect(hide_inventory)
 
 func open_inventory() -> void:
 	var lm = get_node_or_null("/root/LetterManager")
@@ -43,12 +39,10 @@ func _populate_grid() -> void:
 		
 		if is_collected:
 			card.text = "Letter #%d" % i
-			UIThemeHelper.apply_fake_3d_style(card, Color(0.12, 0.18, 0.24, 0.95), Color(0.3, 0.8, 1.0, 0.9), Color(1.0, 1.0, 1.0, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 18)
 			card.pressed.connect(_on_letter_clicked.bind(i))
 		else:
 			card.text = "Locked"
 			card.disabled = true
-			UIThemeHelper.apply_fake_3d_style(card, Color(0.1, 0.1, 0.12, 0.5), Color(0.3, 0.3, 0.35, 0.4), Color(0.2, 0.2, 0.2, 0.5), Color(0.5, 0.5, 0.5, 1.0), Color(0.5, 0.5, 0.5, 1.0), 18)
 			
 		grid_container.add_child(card)
 

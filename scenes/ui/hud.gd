@@ -1,28 +1,14 @@
 extends CanvasLayer
 
-const UIThemeHelper = preload("res://scenes/ui/ui_theme_helper.gd")
-
-## HUD script managing in-game counter button, menu, debug triggers, and inventory modal
+## HUD script managing in-game counter button, menu, and inventory modal
 @onready var control: Control = $Control
 @onready var letter_counter_btn: Button = $Control/TopBar/MarginContainer/HBoxContainer/LetterCounterBtn
-@onready var menu_btn: Button = $Control/TopBar/MarginContainer/HBoxContainer/MenuBtn
-@onready var debug_intro_btn: Button = get_node_or_null("Control/TopBar/MarginContainer/HBoxContainer/DebugIntroBtn")
-@onready var debug_end_btn: Button = get_node_or_null("Control/TopBar/MarginContainer/HBoxContainer/DebugEndBtn")
+@onready var menu_btn: Control = $Control/TopBar/MarginContainer/HBoxContainer/MenuBtn
 @onready var letter_inventory: CanvasLayer = $LetterInventory
 
 func _ready() -> void:
 	if control:
 		control.show()
-
-	# Style buttons with Fake 3D / AnimatedButton look
-	if letter_counter_btn:
-		UIThemeHelper.apply_fake_3d_style(letter_counter_btn, Color(0.12, 0.14, 0.2, 0.95), Color(0.9, 0.7, 0.2, 1.0), Color(1.0, 0.85, 0.4, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 20)
-	if menu_btn:
-		UIThemeHelper.apply_fake_3d_style(menu_btn, Color(0.12, 0.14, 0.2, 0.95), Color(0.9, 0.95, 1.0, 0.9), Color(1.0, 1.0, 1.0, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 20)
-	if debug_intro_btn:
-		UIThemeHelper.apply_fake_3d_style(debug_intro_btn, Color(0.1, 0.12, 0.18, 0.85), Color(0.4, 0.6, 0.9, 0.8), Color(0.9, 0.95, 1.0, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 16)
-	if debug_end_btn:
-		UIThemeHelper.apply_fake_3d_style(debug_end_btn, Color(0.1, 0.12, 0.18, 0.85), Color(0.4, 0.6, 0.9, 0.8), Color(0.9, 0.95, 1.0, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 16)
 		
 	var lm = get_node_or_null("/root/LetterManager")
 	var count: int = lm.get_collected_count() if lm else 0
@@ -35,14 +21,8 @@ func _ready() -> void:
 		if not letter_counter_btn.pressed.is_connected(_on_counter_pressed):
 			letter_counter_btn.pressed.connect(_on_counter_pressed)
 	if menu_btn:
-		if not menu_btn.pressed.is_connected(_on_menu_pressed):
+		if menu_btn.has_signal("pressed") and not menu_btn.pressed.is_connected(_on_menu_pressed):
 			menu_btn.pressed.connect(_on_menu_pressed)
-	if debug_intro_btn:
-		if not debug_intro_btn.pressed.is_connected(_on_debug_intro_pressed):
-			debug_intro_btn.pressed.connect(_on_debug_intro_pressed)
-	if debug_end_btn:
-		if not debug_end_btn.pressed.is_connected(_on_debug_end_pressed):
-			debug_end_btn.pressed.connect(_on_debug_end_pressed)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
