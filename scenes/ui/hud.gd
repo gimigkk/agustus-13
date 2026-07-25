@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const UIThemeHelper = preload("res://scenes/ui/ui_theme_helper.gd")
+
 ## HUD script managing in-game counter button, menu, debug triggers, and inventory modal
 @onready var control: Control = $Control
 @onready var letter_counter_btn: Button = $Control/TopBar/MarginContainer/HBoxContainer/LetterCounterBtn
@@ -11,6 +13,16 @@ extends CanvasLayer
 func _ready() -> void:
 	if control:
 		control.show()
+
+	# Style buttons with Fake 3D / AnimatedButton look
+	if letter_counter_btn:
+		UIThemeHelper.apply_fake_3d_style(letter_counter_btn, Color(0.12, 0.14, 0.2, 0.95), Color(0.9, 0.7, 0.2, 1.0), Color(1.0, 0.85, 0.4, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 20)
+	if menu_btn:
+		UIThemeHelper.apply_fake_3d_style(menu_btn, Color(0.12, 0.14, 0.2, 0.95), Color(0.9, 0.95, 1.0, 0.9), Color(1.0, 1.0, 1.0, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 20)
+	if debug_intro_btn:
+		UIThemeHelper.apply_fake_3d_style(debug_intro_btn, Color(0.1, 0.12, 0.18, 0.85), Color(0.4, 0.6, 0.9, 0.8), Color(0.9, 0.95, 1.0, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 16)
+	if debug_end_btn:
+		UIThemeHelper.apply_fake_3d_style(debug_end_btn, Color(0.1, 0.12, 0.18, 0.85), Color(0.4, 0.6, 0.9, 0.8), Color(0.9, 0.95, 1.0, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 16)
 		
 	var lm = get_node_or_null("/root/LetterManager")
 	var count: int = lm.get_collected_count() if lm else 0

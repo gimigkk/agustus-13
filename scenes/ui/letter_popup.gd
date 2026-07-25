@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const UIThemeHelper = preload("res://scenes/ui/ui_theme_helper.gd")
+
 ## Popup Modal displaying a single letter's decorated PNG content
 @onready var title_label: Label = $Control/Panel/MarginContainer/VBoxContainer/TitleLabel
 @onready var letter_image: TextureRect = $Control/Panel/MarginContainer/VBoxContainer/LetterImage
@@ -9,7 +11,9 @@ extends CanvasLayer
 
 func _ready() -> void:
 	control.hide()
-	close_btn.pressed.connect(hide_popup)
+	if close_btn:
+		UIThemeHelper.apply_fake_3d_style(close_btn, Color(0.18, 0.15, 0.28, 0.95), Color(0.9, 0.7, 0.2, 1.0), Color(1.0, 0.85, 0.4, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 24)
+		close_btn.pressed.connect(hide_popup)
 
 ## Called from LetterInventory grid when a collected letter is clicked
 func show_letter(letter_id: int) -> void:

@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const UIThemeHelper = preload("res://scenes/ui/ui_theme_helper.gd")
+
 ## Touch Controls script providing visual buttons and touch/mouse interaction
 @onready var control: Control = $Control
 @onready var btn_left: Button = $Control/BtnLeft
@@ -13,6 +15,14 @@ func _ready() -> void:
 		control.show()
 	if btn_jump:
 		initial_jump_pos = btn_jump.position
+
+	# Style buttons with Fake 3D / AnimatedButton look
+	if btn_left:
+		UIThemeHelper.apply_fake_3d_style(btn_left, Color(0.1, 0.12, 0.18, 0.9), Color(0.3, 0.8, 1.0, 0.9), Color(1.0, 1.0, 1.0, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 30)
+	if btn_right:
+		UIThemeHelper.apply_fake_3d_style(btn_right, Color(0.1, 0.12, 0.18, 0.9), Color(0.3, 0.8, 1.0, 0.9), Color(1.0, 1.0, 1.0, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 30)
+	if btn_jump:
+		UIThemeHelper.apply_fake_3d_style(btn_jump, Color(0.15, 0.12, 0.22, 0.95), Color(1.0, 0.8, 0.3, 1.0), Color(1.0, 0.9, 0.4, 1.0), Color(0.1, 0.1, 0.1, 1.0), Color(0.68, 1.0, 0.18, 1.0), 30)
 
 	# Connect button press and release signals to action triggers
 	btn_left.button_down.connect(func(): Input.action_press("move_left"))
