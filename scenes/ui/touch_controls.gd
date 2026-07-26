@@ -6,15 +6,9 @@ extends CanvasLayer
 @onready var btn_right: Control = $Control/ButtonContainer/BtnRight
 @onready var btn_jump: Control = $Control/ButtonContainer/BtnJump
 
-var initial_jump_pos: Vector2
-
 func _ready() -> void:
 	if control:
 		control.show()
-	
-	if btn_jump:
-		await get_tree().process_frame
-		initial_jump_pos = btn_jump.position
 
 	# Connect button press and release signals to action triggers
 	if btn_left:
@@ -40,18 +34,16 @@ func _process(_delta: float) -> void:
 	if btn_jump and btn_jump.has_method("set_external_pressed"):
 		btn_jump.set_external_pressed(Input.is_action_pressed("jump"))
 
-	# Handle jump charge shake animation
-	if not btn_jump:
-		return
-		
-	var ratio: float = 0.0
-	var player_node = get_tree().current_scene.get_node_or_null("Player")
-	if player_node and player_node.has_method("get_charge_ratio"):
-		ratio = player_node.get_charge_ratio()
-		
-	if ratio > 0.0:
-		var shake_mag := ratio * 7.0
-		btn_jump.position = initial_jump_pos + Vector2(randf_range(-shake_mag, shake_mag), randf_range(-shake_mag, shake_mag))
-	else:
-		if initial_jump_pos != Vector2.ZERO:
-			btn_jump.position = initial_jump_pos
+	# Handle jump charge shake animation without touching position layout
+	if btn_jump:
+		var ratio: float = 0.0
+		var player_node = get_tree().current_scene.get_node_or_null("Player")
+		if player_node and player_node.has_method("get_charge_ratio"):
+			ratio = player_node.get_charge_ratio()
+			
+		if ratio > 0.0:
+			var shake_mag := ratio * 4.0
+			btn_jump.pivot_offset = btn_jump.size / 2.0
+			btn_jump.rotation_degrees = randf_range(-shake_mag, shake_mag)
+		else:
+			btn_jump.rotation_degrees = 0.0
