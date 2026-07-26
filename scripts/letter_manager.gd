@@ -1,7 +1,7 @@
 extends Node
 
 ## LetterManager Autoload Singleton to handle letter messages and collection state
-signal letter_collected(letter_id: int, message: String, total_collected: int)
+signal letter_collected(letter_id: int, message: String, total_collected: int, collect_pos: Vector2)
 
 const TOTAL_LETTERS: int = 21
 
@@ -66,10 +66,10 @@ func is_bundle_collected(start_id: int, count: int) -> bool:
 			return false
 	return true
 
-func collect_letter(letter_id: int, player_pos: Vector2 = Vector2.ZERO) -> bool:
-	return collect_letter_bundle(letter_id, 1, player_pos)
+func collect_letter(letter_id: int, player_pos: Vector2 = Vector2.ZERO, collect_world_pos: Vector2 = Vector2.ZERO) -> bool:
+	return collect_letter_bundle(letter_id, 1, player_pos, collect_world_pos)
 
-func collect_letter_bundle(start_id: int, count: int, player_pos: Vector2 = Vector2.ZERO) -> bool:
+func collect_letter_bundle(start_id: int, count: int, player_pos: Vector2 = Vector2.ZERO, collect_world_pos: Vector2 = Vector2.ZERO) -> bool:
 	var newly_collected := false
 	var last_id := start_id
 	var last_msg := ""
@@ -89,7 +89,8 @@ func collect_letter_bundle(start_id: int, count: int, player_pos: Vector2 = Vect
 		if sm:
 			sm.save_game(player_pos, collected_letter_ids)
 			
-		emit_signal("letter_collected", last_id, last_msg, total)
+		var final_collect_pos := collect_world_pos if collect_world_pos != Vector2.ZERO else player_pos
+		emit_signal("letter_collected", last_id, last_msg, total, final_collect_pos)
 		return true
 		
 	return false

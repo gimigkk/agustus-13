@@ -66,5 +66,5 @@ func _on_body_entered(body: Node2D) -> void:
 		is_collected = true
 		var lm = get_node_or_null("/root/LetterManager")
 		if lm:
-			lm.collect_letter_bundle(letter_id, letter_count, body.global_position)
+			lm.collect_letter_bundle(letter_id, letter_count, body.global_position, global_position)
 		queue_free()
