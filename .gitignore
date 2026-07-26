@@ -4,6 +4,9 @@
 # Personal data privacy
 letters.json
 
+# Exported assets & level maps
+exports/
+
 # OS files
 .DS_Store
 Thumbs.db
