@@ -58,6 +58,16 @@ func _export_level() -> void:
 	if banana is Node2D:
 		_render_marker(img, banana, Color(1.0, 0.5, 0.0, 1.0), Vector2(30, 30), bounds_left, bounds_top)
 
+	# Render Walk Target
+	var walk_target = level.get_node_or_null("WalkTarget")
+	if walk_target is Node2D:
+		_render_marker(img, walk_target, Color(0.2, 0.7, 0.9, 1.0), Vector2(60, 24), bounds_left, bounds_top)
+
+	# Render Fall Target
+	var fall_target = level.get_node_or_null("FallTarget")
+	if fall_target is Node2D:
+		_render_marker(img, fall_target, Color(0.2, 0.8, 0.4, 1.0), Vector2(60, 24), bounds_left, bounds_top)
+
 	# Render Player Start Marker
 	var player = level.get_node_or_null("Player")
 	if player is Node2D:

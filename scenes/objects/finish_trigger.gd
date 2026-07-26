@@ -3,11 +3,9 @@ extends Area2D
 ## Finish Goal Trigger at the Summit Peak with Cutscene Sequence
 @export var required_letters: int = 21
 
-## Cutscene Positions (relative or absolute)
-@export var left_landing_offset: Vector2 = Vector2(-200, 0)
-@export var right_target_offset: Vector2 = Vector2(400, 0)
-@export var pop_up_height: float = 220.0
-@export var pause_before_run: float = 2 # Brief pause on left platform before running right
+## Cutscene Parameters
+@export var pop_up_height: float = 180.0
+@export var pause_before_run: float = 0.4
 
 @onready var visual: ColorRect = $Visual
 @onready var label: Label = $Visual/Label
@@ -34,6 +32,9 @@ func _on_body_entered(body: Node2D) -> void:
 		_show_incomplete_prompt(collected, required_letters)
 
 func _play_finish_sequence(player: CharacterBody2D) -> void:
+	var level_node = get_tree().current_scene
+	print("[FinishTrigger] Outro cutscene triggered!")
+
 	# 1. Lock player controls and disable collision during cutscene
 	player.set_physics_process(false)
 	player.velocity = Vector2.ZERO
@@ -41,53 +42,171 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 	if is_instance_valid(player_col):
 		player_col.set_deferred("disabled", true)
 	
-	var hud = get_tree().current_scene.get_node_or_null("HUD")
-	if hud and hud.has_node("Control"):
+	var hud = level_node.get_node_or_null("HUD")
+	if is_instance_valid(hud) and hud.has_node("Control"):
 		hud.get_node("Control").hide()
-	var touch_ui = get_tree().current_scene.get_node_or_null("TouchControls")
-	if touch_ui:
+	var touch_ui = level_node.get_node_or_null("TouchControls")
+	if is_instance_valid(touch_ui):
 		touch_ui.hide()
 
-	# Calculate positions
-	var start_pos := player.global_position
-	var left_land := global_position + left_landing_offset
-	var right_target := left_land + right_target_offset
-	var peak_y: float = minf(start_pos.y, left_land.y) - pop_up_height
+	# 2. Get Ground Y and target X positions directly from WalkTarget
+	var walk_target_node = level_node.get_node_or_null("WalkTarget")
 
-	var arc_duration: float = 1.2
+	var ground_surface_y: float = global_position.y + 35.0
+	if is_instance_valid(walk_target_node):
+		ground_surface_y = walk_target_node.global_position.y
+		print("[FinishTrigger] Using WalkTarget Y as Ground Y: ", ground_surface_y)
+
+	var player_ground_y: float = ground_surface_y - 30.0 # Feet rest on ground surface
+	var start_pos := player.global_position
+
+	# Well exit pop-out lands on the left summit platform (X = -90)
+	var left_land_x: float = global_position.x - 88.0
+
+	# Walk target X (where GF stands and player walks to)
+	var right_target_x: float = left_land_x + 270.0
+	if is_instance_valid(walk_target_node):
+		right_target_x = walk_target_node.global_position.x
+		print("[FinishTrigger] Referenced WalkTarget X at: ", right_target_x)
+
+	var peak_y: float = minf(start_pos.y, player_ground_y) - pop_up_height
+
+	# 3. Create Girlfriend standing at WalkTarget position facing left towards player
+	var gf = level_node.get_node_or_null("GirlfriendVisual")
+	if not is_instance_valid(gf):
+		var gf_node := TextureRect.new()
+		gf_node.name = "GirlfriendVisual"
+		var gf_tex = load("res://scenes/player/p2_gf.png") as Texture2D
+		if gf_tex:
+			gf_node.texture = gf_tex
+		gf_node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		gf_node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		gf_node.custom_minimum_size = Vector2(65, 65)
+		gf_node.size = Vector2(65, 65)
+		gf_node.pivot_offset = Vector2(32.5, 65.0)
+		gf_node.global_position = Vector2(right_target_x, ground_surface_y - 65.0)
+		gf_node.scale = Vector2(1.0, 1.0) # Facing left towards well
+		level_node.add_child(gf_node)
+		gf = gf_node
+
+	# 4. Outro Animation Sequence
+	var arc_duration: float = 0.9
 	var half_arc: float = arc_duration * 0.5
 
-	# Create cutscene animation tween sequence
-	var tween := create_tween().set_parallel(true)
-	
-	# Parabolic Arc: X and Y synced perfectly
-	# 1. Horizontal: X moves linearly across full 1.2s
-	tween.tween_property(player, "global_position:x", left_land.x, arc_duration).set_trans(Tween.TRANS_LINEAR)
+	# Horizontal X Tween
+	var x_tween := level_node.create_tween()
+	x_tween.tween_property(player, "global_position:x", left_land_x, arc_duration).set_trans(Tween.TRANS_LINEAR)
 
-	# 2. Vertical Rise: 0.0s -> 0.6s (Ease Out to 0 speed at peak)
-	tween.tween_property(player, "global_position:y", peak_y, half_arc).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	# Vertical Y Arc Tween (Rise then Fall to player_ground_y!)
+	var y_tween := level_node.create_tween()
+	y_tween.tween_property(player, "global_position:y", peak_y, half_arc).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	y_tween.tween_property(player, "global_position:y", player_ground_y, half_arc).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
-	# 3. Vertical Fall: 0.6s -> 1.2s (Ease In down to platform)
-	tween.tween_property(player, "global_position:y", left_land.y, half_arc).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN).set_delay(half_arc)
-
-	# Phase C: Happy bounce emote & turn right on left platform
 	var player_visual = player.get_node_or_null("Visual")
-	if player_visual:
-		tween.tween_property(player_visual, "scale:y", 1.35, 0.15).set_delay(arc_duration)
-		tween.tween_property(player_visual, "scale:y", 1.0, 0.15).set_delay(arc_duration + 0.15)
-		tween.tween_callback(func():
-			player_visual.scale.x = 1.0 # Face right towards girlfriend
-		).set_delay(arc_duration + 0.3)
+	if is_instance_valid(player_visual):
+		var spin_tween := level_node.create_tween()
+		spin_tween.tween_property(player_visual, "rotation_degrees", 360.0, arc_duration)
 
-	# Phase D: Brief Pause before starting to walk right
-	var run_start_delay: float = arc_duration + 0.3 + pause_before_run
-	tween.tween_property(player, "global_position:x", right_target.x, 1.8).set_trans(Tween.TRANS_LINEAR).set_delay(run_start_delay)
+	# Stage B: Land on left platform at t = 1.2s
+	var landing_delay := level_node.create_tween()
+	landing_delay.tween_interval(arc_duration)
+	landing_delay.tween_callback(func():
+		if is_instance_valid(player):
+			player.global_position.y = player_ground_y
+		if is_instance_valid(player_visual):
+			player_visual.rotation_degrees = 0.0
+			player_visual.scale = Vector2(-1.35, 0.65) # Squash landing
+	)
+	landing_delay.tween_property(player_visual, "scale", Vector2(-1.0, 1.0), 0.12) # Unsquash & face right (-1.0)
 
-	# Phase E: Trigger Victory Celebration Screen!
-	var finish_time: float = run_start_delay + 1.8
-	tween.tween_callback(func():
+	# GF excited bounce when player lands
+	if is_instance_valid(gf):
+		var gf_bounce := level_node.create_tween()
+		gf_bounce.tween_interval(arc_duration + 0.1)
+		gf_bounce.tween_property(gf, "scale", Vector2(1.25, 0.65), 0.10)
+		gf_bounce.tween_property(gf, "scale", Vector2(1.0, 1.0), 0.10)
+
+	# Stage C: Walk across platform to WalkTarget
+	var walk_start_time: float = arc_duration + 0.3 + pause_before_run
+	var walk_target_x: float = right_target_x - 35.0 # Stop 35px in front of GF
+	var walk_dist: float = absf(walk_target_x - left_land_x)
+	var walk_dur: float = clampf(walk_dist / 220.0, 0.6, 2.0)
+
+	var walk_x_tween := level_node.create_tween()
+	walk_x_tween.tween_interval(walk_start_time)
+	walk_x_tween.tween_property(player, "global_position:x", walk_target_x, walk_dur).set_trans(Tween.TRANS_LINEAR)
+
+	# Player waddle steps
+	var waddle_timer := level_node.create_tween()
+	waddle_timer.tween_interval(walk_start_time)
+	waddle_timer.tween_callback(func():
+		if not is_instance_valid(player) or not is_instance_valid(player_visual):
+			return
+		var waddle_tween := level_node.create_tween()
+		var num_steps := int(walk_dur / 0.12)
+		for s in range(num_steps):
+			var rot := 6.0 if (s % 2 == 0) else -6.0
+			var bounce_y := player_ground_y - (3.0 if (s % 2 == 0) else 0.0)
+			waddle_tween.tween_property(player_visual, "rotation_degrees", rot, 0.06)
+			waddle_tween.parallel().tween_property(player, "global_position:y", bounce_y, 0.06)
+		waddle_tween.chain().tween_callback(func():
+			if is_instance_valid(player_visual):
+				player_visual.rotation_degrees = 0.0
+			if is_instance_valid(player):
+				player.global_position.y = player_ground_y
+		)
+	)
+
+	# Stage D: Inverted See-saw Emote (BF squashes while GF stretches, and vice-versa!)
+	var reunion_time: float = walk_start_time + walk_dur
+	var crouch_duration: float = 2.0
+
+	var reunion_tween := level_node.create_tween()
+	reunion_tween.tween_interval(reunion_time)
+	reunion_tween.tween_callback(func():
+		if is_instance_valid(player):
+			player.global_position.y = player_ground_y
+		if is_instance_valid(player_visual):
+			player_visual.rotation_degrees = 0.0
+			player_visual.scale = Vector2(-1.0, 1.0)
+		if is_instance_valid(gf):
+			gf.rotation_degrees = 0.0
+			gf.scale = Vector2(1.0, 1.0)
+
+		# See-saw squash & stretch tween (BF down/GF up ➔ BF up/GF down)
+		var step_dur := 0.08 # 0.08s per phase (super snappy!)
+		var num_cycles := 11 # 11 cycles * 0.16s = ~1.76s + reset
+
+		var p_tween := level_node.create_tween()
+		var gf_tween := level_node.create_tween()
+
+		for i in range(num_cycles):
+			# Phase 1: BF Squashes (short/wide), GF Stretches (tall/narrow)
+			if is_instance_valid(player_visual):
+				p_tween.tween_property(player_visual, "scale", Vector2(-1.35, 0.60), step_dur)
+			if is_instance_valid(gf):
+				gf_tween.tween_property(gf, "scale", Vector2(0.70, 1.35), step_dur)
+
+			# Phase 2: BF Stretches (tall/narrow), GF Squashes (short/wide)
+			if is_instance_valid(player_visual):
+				p_tween.tween_property(player_visual, "scale", Vector2(-0.70, 1.35), step_dur)
+			if is_instance_valid(gf):
+				gf_tween.tween_property(gf, "scale", Vector2(1.35, 0.60), step_dur)
+
+		# Reset back to neutral resting scale at the end
+		if is_instance_valid(player_visual):
+			p_tween.tween_property(player_visual, "scale", Vector2(-1.0, 1.0), 0.10)
+		if is_instance_valid(gf):
+			gf_tween.tween_property(gf, "scale", Vector2(1.0, 1.0), 0.10)
+	)
+
+	# Stage E: Trigger Victory Celebration Screen after 2s Minecraft crouch greeting
+	var finish_time: float = reunion_time + crouch_duration
+	var victory_tween := level_node.create_tween()
+	victory_tween.tween_interval(finish_time)
+	victory_tween.tween_callback(func():
 		_trigger_victory()
-	).set_delay(finish_time)
+	)
 
 func _trigger_victory() -> void:
 	var hud = get_tree().current_scene.get_node_or_null("HUD")
@@ -103,3 +222,5 @@ func _show_incomplete_prompt(collected: int, required: int) -> void:
 	var hud = get_tree().current_scene.get_node_or_null("HUD")
 	if hud and hud.has_method("show_incomplete_prompt"):
 		hud.show_incomplete_prompt(collected, required)
+
+
