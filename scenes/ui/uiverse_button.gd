@@ -43,6 +43,7 @@ var base_panel: Panel
 var top_button: Button
 var tween: Tween
 var is_externally_pressed: bool = false
+var charge_shake_offset: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	_setup_nodes()
@@ -122,6 +123,21 @@ func _setup_nodes() -> void:
 			top_button.button_up.connect(_on_button_up)
 		if not top_button.pressed.is_connected(_on_pressed_internal):
 			top_button.pressed.connect(_on_pressed_internal)
+
+func set_charge_shake(ratio: float) -> void:
+	if ratio > 0.0:
+		var shake_mag := ratio * 6.0
+		charge_shake_offset = Vector2(randf_range(-shake_mag, shake_mag), randf_range(-shake_mag, shake_mag))
+	else:
+		charge_shake_offset = Vector2.ZERO
+	
+	if top_button:
+		top_button.position.x = charge_shake_offset.x
+		if ratio > 0.0:
+			pivot_offset = size / 2.0
+			rotation_degrees = charge_shake_offset.x * 0.8
+		else:
+			rotation_degrees = 0.0
 
 func set_external_pressed(p_pressed: bool) -> void:
 	if is_externally_pressed == p_pressed:
