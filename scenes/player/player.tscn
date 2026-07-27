@@ -10,8 +10,8 @@ blend_mode = 1
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_player_shadow"]
 shader = ExtResource("4_shadowshader")
-shader_parameter/blur_amount = 7.0
-shader_parameter/shadow_opacity = 0.50
+shader_parameter/blur_amount = 12.0
+shader_parameter/shadow_opacity = 0.28
 shader_parameter/radial_outward = 0.0
 shader_parameter/vertical_offset = 0.0
 

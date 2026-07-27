@@ -37,8 +37,8 @@ fill_to = Vector2(0.5, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_shadow"]
 shader = ExtResource("23_shadowshader")
-shader_parameter/blur_amount = 9.0
-shader_parameter/shadow_opacity = 0.45
+shader_parameter/blur_amount = 14.0
+shader_parameter/shadow_opacity = 0.28
 shader_parameter/radial_outward = 0.035
 shader_parameter/vertical_offset = 10.0
 
@@ -55,10 +55,11 @@ color = Color(0, 0, 0, 1)
 [node name="SkyBG" type="TextureRect" parent="."]
 z_index = -10
 offset_left = -400.0
-offset_top = -5500.0
+offset_top = -4644.0
 offset_right = 400.0
-offset_bottom = -3400.0
+offset_bottom = -3844.0
 texture = SubResource("GradientTex_sky")
+expand_mode = 4
 
 [node name="BGLayer" type="Node2D" parent="."]
 z_index = -10
