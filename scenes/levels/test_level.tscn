@@ -23,6 +23,12 @@
 [ext_resource type="Texture2D" uid="uid://bov1ds1g8loll" path="res://assets/level/slices/platform_slice_4.png" id="20_plat4"]
 [ext_resource type="Texture2D" uid="uid://li1tnfeipobi" path="res://assets/level/well.png" id="21_well"]
 [ext_resource type="Script" uid="uid://c0f1n1lkudo0q" path="res://scripts/visibility_culler.gd" id="22_cullscript"]
+[ext_resource type="Shader" path="res://shaders/drop_shadow_blur.gdshader" id="23_shadowshader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_shadow"]
+shader = ExtResource("23_shadowshader")
+shader_parameter/blur_amount = 3.5
+shader_parameter/shadow_opacity = 0.4
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.22, 0.4, 0.7, 1, 0.69, 0.84, 0.95, 1)
@@ -84,8 +90,8 @@ texture = ExtResource("15_bg4")
 
 [node name="PlatformShadowLayer" type="Node2D" parent="."]
 z_index = 7
+material = SubResource("ShaderMaterial_shadow")
 position = Vector2(0, 14.415)
-modulate = Color(0, 0, 0, 0.45)
 script = ExtResource("22_cullscript")
 
 [node name="Plat0" type="Sprite2D" parent="PlatformShadowLayer"]
