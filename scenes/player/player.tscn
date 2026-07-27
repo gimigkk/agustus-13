@@ -29,7 +29,7 @@ material = SubResource("CanvasItemMaterial_glow")
 position = Vector2(0, -5)
 scale = Vector2(0.7, 0.7)
 texture = ExtResource("3_glow")
-modulate = Color(1, 1, 1, 0.07)
+modulate = Color(1, 1, 1, 0.035)
 
 [node name="Shadow" type="TextureRect" parent="."]
 z_index = -1
@@ -45,6 +45,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="Visual" type="TextureRect" parent="."]
+modulate = Color(1.22, 1.22, 1.22, 1)
 custom_minimum_size = Vector2(65, 65)
 offset_left = -32.5
 offset_top = -35.0

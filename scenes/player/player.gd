@@ -64,7 +64,7 @@ func _process(delta: float) -> void:
 	# Smoothly fade out ambient glow when player climbs outside the well (Y <= -3850)
 	if glow:
 		var well_exit_y: float = -3850.0
-		var target_alpha: float = 0.07 if global_position.y > well_exit_y else 0.0
+		var target_alpha: float = 0.035 if global_position.y > well_exit_y else 0.0
 		glow.modulate.a = move_toward(glow.modulate.a, target_alpha, delta * 2.0)
 		glow.visible = glow.modulate.a > 0.001
 
