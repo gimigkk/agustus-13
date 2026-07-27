@@ -91,30 +91,35 @@ texture = ExtResource("15_bg4")
 [node name="PlatformShadowLayer" type="Node2D" parent="."]
 z_index = 7
 material = SubResource("ShaderMaterial_shadow")
-position = Vector2(0, 14.415)
+position = Vector2(4, 14.415)
 script = ExtResource("22_cullscript")
 
 [node name="Plat0" type="Sprite2D" parent="PlatformShadowLayer"]
+use_parent_material = true
 position = Vector2(0, 779)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("16_plat0")
 
 [node name="Plat1" type="Sprite2D" parent="PlatformShadowLayer"]
+use_parent_material = true
 position = Vector2(0, -323)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("17_plat1")
 
 [node name="Plat2" type="Sprite2D" parent="PlatformShadowLayer"]
+use_parent_material = true
 position = Vector2(0, -1425)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("18_plat2")
 
 [node name="Plat3" type="Sprite2D" parent="PlatformShadowLayer"]
+use_parent_material = true
 position = Vector2(0, -2527)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("19_plat3")
 
 [node name="Plat4" type="Sprite2D" parent="PlatformShadowLayer"]
+use_parent_material = true
 position = Vector2(0, -3629)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("20_plat4")
