@@ -9,6 +9,7 @@ extends CanvasLayer
 func _ready() -> void:
 	if control:
 		control.show()
+	call_deferred("_find_player")
 
 	# Connect button press and release signals to action triggers
 	if btn_left:
@@ -37,9 +38,8 @@ func _process(_delta: float) -> void:
 	# Handle jump charge shake animation without touching position layout
 	if btn_jump:
 		var ratio: float = 0.0
-		var player_node = get_tree().current_scene.get_node_or_null("Player")
-		if player_node and player_node.has_method("get_charge_ratio"):
-			ratio = player_node.get_charge_ratio()
+		if _player_ref and _player_ref.has_method("get_charge_ratio"):
+			ratio = _player_ref.get_charge_ratio()
 			
 		if ratio > 0.0:
 			var shake_mag := ratio * 4.0
@@ -47,3 +47,10 @@ func _process(_delta: float) -> void:
 			btn_jump.rotation_degrees = randf_range(-shake_mag, shake_mag)
 		else:
 			btn_jump.rotation_degrees = 0.0
+
+var _player_ref: Node = null
+
+func _find_player() -> void:
+	var scene = get_tree().current_scene
+	if scene:
+		_player_ref = scene.get_node_or_null("Player")
