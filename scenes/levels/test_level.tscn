@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://c8testlevel01"]
+[gd_scene load_steps=28 format=3 uid="uid://c8testlevel01"]
 
 [ext_resource type="Script" uid="uid://by76834eke6rf" path="res://scenes/levels/test_level.gd" id="1_level_script"]
 [ext_resource type="PackedScene" uid="uid://c8player0001" path="res://scenes/player/player.tscn" id="1_player"]
@@ -23,12 +23,7 @@
 [ext_resource type="Texture2D" uid="uid://bov1ds1g8loll" path="res://assets/level/slices/platform_slice_4.png" id="20_plat4"]
 [ext_resource type="Texture2D" uid="uid://li1tnfeipobi" path="res://assets/level/well.png" id="21_well"]
 [ext_resource type="Script" uid="uid://c0f1n1lkudo0q" path="res://scripts/visibility_culler.gd" id="22_cullscript"]
-[ext_resource type="Shader" path="res://shaders/drop_shadow_blur.gdshader" id="23_shadowshader"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_shadow"]
-shader = ExtResource("23_shadowshader")
-shader_parameter/blur_amount = 3.5
-shader_parameter/shadow_opacity = 0.4
+[ext_resource type="Shader" uid="uid://ericiccwlu48" path="res://shaders/drop_shadow_blur.gdshader" id="23_shadowshader"]
 
 [sub_resource type="Gradient" id="Gradient_sky"]
 colors = PackedColorArray(0.22, 0.4, 0.7, 1, 0.69, 0.84, 0.95, 1)
@@ -39,6 +34,13 @@ width = 800
 height = 2100
 fill_from = Vector2(0.5, 0)
 fill_to = Vector2(0.5, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_shadow"]
+shader = ExtResource("23_shadowshader")
+shader_parameter/blur_amount = 9.0
+shader_parameter/shadow_opacity = 0.45
+shader_parameter/radial_outward = 0.035
+shader_parameter/vertical_offset = 10.0
 
 [node name="TestLevel" type="Node2D"]
 script = ExtResource("1_level_script")

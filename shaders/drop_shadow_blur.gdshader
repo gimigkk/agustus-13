@@ -1,6 +1,6 @@
 shader_type canvas_item;
 
-uniform float blur_amount : hint_range(0.0, 20.0) = 5.0;
+uniform float blur_amount : hint_range(0.0, 30.0) = 9.0;
 uniform float shadow_opacity : hint_range(0.0, 1.0) = 0.50;
 uniform float radial_outward : hint_range(0.0, 0.1) = 0.035; // Outward X displacement from center
 uniform float vertical_offset : hint_range(0.0, 30.0) = 10.0; // Downward Y displacement (px)
@@ -15,21 +15,17 @@ void fragment() {
 	vec2 target_uv = UV - offset_uv;
 	vec2 ps = TEXTURE_PIXEL_SIZE * blur_amount;
 	
-	// 13-tap Gaussian Kernel Blur
+	// 25-sample deep Gaussian box blur for ultra-soft, feathered shadow edges
 	float alpha = 0.0;
-	alpha += texture(TEXTURE, target_uv + vec2(-ps.x * 2.0, 0.0)).a * 0.05;
-	alpha += texture(TEXTURE, target_uv + vec2(-ps.x, -ps.y)).a * 0.10;
-	alpha += texture(TEXTURE, target_uv + vec2(0.0, -ps.y * 2.0)).a * 0.05;
-	alpha += texture(TEXTURE, target_uv + vec2(0.0, -ps.y)).a * 0.15;
-	alpha += texture(TEXTURE, target_uv + vec2(ps.x, -ps.y)).a * 0.10;
-	alpha += texture(TEXTURE, target_uv + vec2(ps.x * 2.0, 0.0)).a * 0.05;
-	
-	alpha += texture(TEXTURE, target_uv).a * 0.25;
-	
-	alpha += texture(TEXTURE, target_uv + vec2(-ps.x, ps.y)).a * 0.10;
-	alpha += texture(TEXTURE, target_uv + vec2(0.0, ps.y)).a * 0.15;
-	alpha += texture(TEXTURE, target_uv + vec2(0.0, ps.y * 2.0)).a * 0.05;
-	alpha += texture(TEXTURE, target_uv + vec2(ps.x, ps.y)).a * 0.10;
+	float total_weight = 0.0;
+	for (float x = -2.0; x <= 2.0; x += 1.0) {
+		for (float y = -2.0; y <= 2.0; y += 1.0) {
+			float weight = 1.0 / (1.0 + (x * x + y * y) * 0.5);
+			alpha += texture(TEXTURE, target_uv + vec2(x * ps.x, y * ps.y)).a * weight;
+			total_weight += weight;
+		}
+	}
+	alpha /= total_weight;
 	
 	COLOR = vec4(0.0, 0.0, 0.0, alpha * shadow_opacity);
 }
