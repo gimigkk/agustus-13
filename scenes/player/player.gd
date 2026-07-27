@@ -90,6 +90,10 @@ func _physics_process(delta: float) -> void:
 	if currently_on_floor and not was_on_floor:
 		_on_landed()
 
+	# Detect edge slip / fall off ledge while charging jump -> Auto-jump!
+	if not currently_on_floor and was_on_floor and is_charging_jump:
+		_execute_charged_jump()
+
 	# Apply gravity when in air
 	if not currently_on_floor:
 		var current_gravity := gravity * gravity_scale
