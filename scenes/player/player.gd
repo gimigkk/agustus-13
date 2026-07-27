@@ -38,6 +38,7 @@ var base_visual_pos: Vector2 = Vector2(-32.5, -35.0)
 @onready var visual: Control = $Visual
 @onready var camera: Camera2D = $Camera2D
 @onready var glow: Sprite2D = get_node_or_null("Glow")
+@onready var shadow: Control = get_node_or_null("Shadow")
 
 func _ready() -> void:
 	if visual:
@@ -184,6 +185,13 @@ func _update_visual_animation(delta: float, calc_vel_x: float = 0.0) -> void:
 			visual.position = base_visual_pos + Vector2(0.0, walk_y_offset)
 
 		visual.scale = Vector2(squash_stretch_scale.x * facing_dir, squash_stretch_scale.y)
+
+		if shadow:
+			var dynamic_shadow_x: float = global_position.x * 0.08
+			shadow.position = visual.position + Vector2(dynamic_shadow_x, 12.0)
+			shadow.scale = visual.scale
+			shadow.rotation_degrees = visual.rotation_degrees
+			shadow.pivot_offset = visual.pivot_offset
 
 func _execute_charged_jump() -> void:
 	if not is_charging_jump:

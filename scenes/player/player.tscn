@@ -3,9 +3,17 @@
 [ext_resource type="Script" path="res://scenes/player/player.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://scenes/player/p1_player.png" id="2_p1_player"]
 [ext_resource type="Texture2D" path="res://assets/effects/player_glow.png" id="3_glow"]
+[ext_resource type="Shader" uid="uid://ericiccwlu48" path="res://shaders/drop_shadow_blur.gdshader" id="4_shadowshader"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_glow"]
 blend_mode = 1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_player_shadow"]
+shader = ExtResource("4_shadowshader")
+shader_parameter/blur_amount = 7.0
+shader_parameter/shadow_opacity = 0.50
+shader_parameter/radial_outward = 0.0
+shader_parameter/vertical_offset = 0.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 20.0
@@ -22,6 +30,19 @@ position = Vector2(0, -5)
 scale = Vector2(0.7, 0.7)
 texture = ExtResource("3_glow")
 modulate = Color(1, 1, 1, 0.07)
+
+[node name="Shadow" type="TextureRect" parent="."]
+z_index = -1
+material = SubResource("ShaderMaterial_player_shadow")
+custom_minimum_size = Vector2(65, 65)
+offset_left = -32.5
+offset_top = -35.0
+offset_right = 32.5
+offset_bottom = 30.0
+pivot_offset = Vector2(32.5, 65.0)
+texture = ExtResource("2_p1_player")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Visual" type="TextureRect" parent="."]
 custom_minimum_size = Vector2(65, 65)
