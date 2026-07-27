@@ -1,11 +1,23 @@
 shader_type canvas_item;
 
-uniform float blur_amount : hint_range(0.0, 30.0) = 9.0;
-uniform float shadow_opacity : hint_range(0.0, 1.0) = 0.50;
+uniform float blur_amount : hint_range(0.0, 30.0) = 14.0;
+uniform float shadow_opacity : hint_range(0.0, 1.0) = 0.28;
 uniform float radial_outward : hint_range(0.0, 0.1) = 0.035; // Outward X displacement from center
 uniform float vertical_offset : hint_range(0.0, 30.0) = 10.0; // Downward Y displacement (px)
 
+varying vec2 world_pos;
+
+void vertex() {
+	world_pos = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
+}
+
 void fragment() {
+	// Smoothly fade out drop shadows above the well opening in open sky (Y <= -3850)
+	float sky_fade = clamp((world_pos.y - (-3950.0)) / 100.0, 0.0, 1.0);
+	if (sky_fade <= 0.001) {
+		discard;
+	}
+
 	// Radial shadow offset: X offset expands outwards from center (UV.x = 0.5)
 	vec2 offset_uv = vec2(
 		(UV.x - 0.5) * radial_outward,
@@ -27,5 +39,5 @@ void fragment() {
 	}
 	alpha /= total_weight;
 	
-	COLOR = vec4(0.0, 0.0, 0.0, alpha * shadow_opacity);
+	COLOR = vec4(0.0, 0.0, 0.0, alpha * shadow_opacity * sky_fade);
 }
