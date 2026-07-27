@@ -57,3 +57,8 @@ pointing/emulate_touch_from_mouse=true
 
 2d/snap/snap_2d_transforms_to_pixel=true
 2d/snap/snap_2d_vertices_to_pixel=true
+vram_compression/import_etc2_astc=true
+
+[application]
+run/max_fps=60
+

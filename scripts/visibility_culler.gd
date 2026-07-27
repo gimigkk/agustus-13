@@ -23,8 +23,12 @@ func _process(_delta: float) -> void:
 	var cam_bottom: float = cam_y + vp_h * 0.5 + MARGIN
 
 	for child in get_children():
-		if child is Sprite2D and child.texture:
-			var half_h: float = child.texture.get_height() * 0.5 * child.scale.y
+		if child is CanvasItem:
+			var half_h: float = 600.0  # Fallback margin height
+			if child is Sprite2D and child.texture:
+				half_h = child.texture.get_height() * 0.5 * child.scale.y
 			var top: float = child.global_position.y - half_h
 			var bottom: float = child.global_position.y + half_h
-			child.visible = bottom > cam_top and top < cam_bottom
+			var is_visible: bool = bottom > cam_top and top < cam_bottom
+			if child.visible != is_visible:
+				child.visible = is_visible

@@ -27,12 +27,12 @@ void fragment() {
 	vec2 target_uv = UV - offset_uv;
 	vec2 ps = TEXTURE_PIXEL_SIZE * blur_amount;
 	
-	// 25-sample deep Gaussian box blur for ultra-soft, feathered shadow edges
+	// Optimized 9-sample bilinear Gaussian blur kernel (64% fewer texture samples per fragment)
 	float alpha = 0.0;
 	float total_weight = 0.0;
-	for (float x = -2.0; x <= 2.0; x += 1.0) {
-		for (float y = -2.0; y <= 2.0; y += 1.0) {
-			float weight = 1.0 / (1.0 + (x * x + y * y) * 0.5);
+	for (float x = -1.5; x <= 1.5; x += 1.5) {
+		for (float y = -1.5; y <= 1.5; y += 1.5) {
+			float weight = 1.0 / (1.0 + (x * x + y * y) * 0.4);
 			alpha += texture(TEXTURE, target_uv + vec2(x * ps.x, y * ps.y)).a * weight;
 			total_weight += weight;
 		}
