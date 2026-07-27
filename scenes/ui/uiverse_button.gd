@@ -2,15 +2,16 @@
 extends Control
 class_name UiverseButton
 
-## Custom movement/control button implementing Uiverse 3D tactile CSS design
-## (From Uiverse.io by Voxybuns)
+## Custom 3D tactile push button component with rest/hover/pressed elevation effects.
 
+## Button display label.
 @export var text: String = "":
 	set(val):
 		text = val
 		if top_button:
 			top_button.text = val
 
+## Icon texture displayed on the button surface.
 @export var icon_texture: Texture2D:
 	set(val):
 		icon_texture = val
@@ -20,12 +21,14 @@ class_name UiverseButton
 				top_button.expand_icon = true
 				top_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
+## Label font size override.
 @export var font_size: int = 24:
 	set(val):
 		font_size = val
 		if top_button:
 			top_button.add_theme_font_size_override("font_size", val)
 
+## Disabled state toggle.
 @export var disabled: bool = false:
 	set(val):
 		disabled = val
@@ -35,16 +38,27 @@ class_name UiverseButton
 
 
 @export_group("3D Elevation Offsets")
+
+## Y offset of top button surface when idle.
 @export var offset_rest: float = -12.0:
 	set(val):
 		offset_rest = val
 		if top_button and not is_externally_pressed:
 			top_button.position.y = val
+
+## Y offset of top button surface when hovered.
 @export var offset_hover: float = -16.0
+
+## Y offset of top button surface when pressed down.
 @export var offset_pressed: float = 0.0
 
+## Emitted when button press begins.
 signal button_down
+
+## Emitted when button press is released.
 signal button_up
+
+## Emitted when button interaction completes.
 signal pressed
 
 var base_panel: Panel
@@ -122,18 +136,12 @@ func _setup_nodes() -> void:
 	top_button.add_theme_color_override("icon_pressed_color", Color("#000000"))
 	top_button.add_theme_color_override("icon_focus_color", Color("#000000"))
 	
-	# Connect interaction signals at runtime
 	if not Engine.is_editor_hint():
-		if not top_button.mouse_entered.is_connected(_on_mouse_entered):
-			top_button.mouse_entered.connect(_on_mouse_entered)
-		if not top_button.mouse_exited.is_connected(_on_mouse_exited):
-			top_button.mouse_exited.connect(_on_mouse_exited)
-		if not top_button.button_down.is_connected(_on_button_down):
-			top_button.button_down.connect(_on_button_down)
-		if not top_button.button_up.is_connected(_on_button_up):
-			top_button.button_up.connect(_on_button_up)
-		if not top_button.pressed.is_connected(_on_pressed_internal):
-			top_button.pressed.connect(_on_pressed_internal)
+		top_button.mouse_entered.connect(_on_mouse_entered)
+		top_button.mouse_exited.connect(_on_mouse_exited)
+		top_button.button_down.connect(_on_button_down)
+		top_button.button_up.connect(_on_button_up)
+		top_button.pressed.connect(_on_pressed_internal)
 
 func set_charge_shake(ratio: float) -> void:
 	if ratio > 0.0:

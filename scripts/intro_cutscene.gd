@@ -1,17 +1,26 @@
 extends Node
 
-## IntroCutscene Manager orchestrating the opening story animation
+## Two-Stage Intro Cutscene Orchestrator.
+## Dependencies:
+## - Level Node Children: "Player" (CharacterBody2D + "Camera2D" + "Visual"), "BananaPeel", "HUD", "TouchControls".
+## - Dynamically Created Nodes: "GirlfriendVisual" (TextureRect), Blackout ColorRect.
+## - Autoloads: SaveManager, LetterManager.
+##
+## State Flow:
+## Stage 1: Player & GF walk on summit -> crouch -> emits stage_1_completed -> triggers MainMenu.
+## Stage 2: New Game click -> banana slip -> parabolic jump -> well skydive -> land -> emits intro_completed.
+
 signal stage_1_completed
 signal intro_completed
 
-## Summit layout positions (read from level)
-@export var walk_start_x: float = -400.0 # Off-screen left
-@export var banana_x: float = -191.0 # Where the banana peel is
-@export var well_x: float = -2.0 # Center of the well hole
-@export var gf_start_x: float = 400.0 # Off-screen right
-@export var gf_stop_x: float = 150.0 # GF stops on right platform
-@export var summit_y: float = -4017.0 # Fallback summit platform surface Y
-@export var arc_peak_height: float = 200.0 # How high the parabolic bounce goes
+@export_group("Summit Motion Bounds")
+@export var walk_start_x: float = -400.0
+@export var banana_x: float = -191.0
+@export var well_x: float = -2.0
+@export var gf_start_x: float = 400.0
+@export var gf_stop_x: float = 150.0
+@export var summit_y: float = -4017.0
+@export var arc_peak_height: float = 200.0
 @export var bottom_ground_y: float = 1190.0
 
 var is_playing: bool = false
@@ -33,8 +42,8 @@ var _bf_stop1_x: float = -260.0
 var _gf_stop1_x: float = 200.0
 var _gf_final_x: float = 140.0
 
+# Stage 1: Initializes player & girlfriend offscreen, waddles to summit center, disables collision/physics.
 func play_intro_stage_1(level_node: Node2D) -> void:
-	print("[IntroCutscene] play_intro_stage_1() called.")
 	if is_playing:
 		return
 	is_playing = true
@@ -51,13 +60,11 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 		is_playing = false
 		return
 
-	# Dynamically pull properties from level
 	_banana_prop = level_node.get_node_or_null("BananaPeel")
 	_ground_surface_y = summit_y
 	if is_instance_valid(_banana_prop):
 		_ground_surface_y = _banana_prop.global_position.y
 		banana_x = _banana_prop.global_position.x
-		# Reset BananaPeel position and opacity for re-runs
 		_banana_prop.global_position = Vector2(banana_x, _ground_surface_y)
 		_banana_prop.rotation_degrees = 0.0
 		_banana_prop.modulate.a = 1.0
@@ -69,7 +76,6 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 
 	_player_ground_center_y = _ground_surface_y - 30.0
 
-	# Hide UI
 	_hud = level_node.get_node_or_null("HUD") as CanvasLayer
 	if is_instance_valid(_hud):
 		_hud.visible = false
@@ -77,7 +83,6 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 	if is_instance_valid(_touch_ui):
 		_touch_ui.visible = false
 
-	# Lock player physics & Setup Player Visuals
 	_player.set_physics_process(false)
 	_player.velocity = Vector2.ZERO
 	_player.z_index = 0
@@ -92,10 +97,9 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 		_camera.reset_smoothing()
 
 	_player.global_position = Vector2(walk_start_x, _player_ground_center_y)
-	if "last_global_pos_x" in _player:
+	if _player.get("last_global_pos_x") != null:
 		_player.last_global_pos_x = walk_start_x
-	if "facing_dir" in _player:
-		_player.facing_dir = -1.0 
+	_player.facing_dir = -1.0 
 
 	_player_visual = _player.get_node_or_null("Visual") as Control
 	if is_instance_valid(_player_visual):
@@ -106,7 +110,6 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 		_camera.global_position = Vector2(0.0, _ground_surface_y - 50.0)
 		_camera.reset_smoothing()
 
-	# Create Girlfriend
 	var existing_gf = level_node.get_node_or_null("GirlfriendVisual")
 	if is_instance_valid(existing_gf):
 		existing_gf.queue_free()
@@ -124,7 +127,6 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 	_gf.global_position = Vector2(gf_start_x, _ground_surface_y - 65.0)
 	level_node.add_child(_gf)
 
-	# Create LetterBox
 	var existing_box = _player.get_node_or_null("LetterBox")
 	if is_instance_valid(existing_box):
 		existing_box.queue_free()
@@ -141,9 +143,6 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 	box_label.position = Vector2(4, 0)
 	_box.add_child(box_label)
 
-	# ============================================
-	# STAGE 1 TIMELINE
-	# ============================================
 	var tween := level_node.create_tween().set_parallel(true)
 	
 	if is_instance_valid(_gf):
@@ -187,28 +186,21 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 
 	var completion_time := 1.70
 	tween.tween_callback(func():
-		print("[IntroCutscene] Stage 1 completed. Pausing for Main Menu.")
 		stage_1_completed.emit()
 	).set_delay(completion_time)
 
-
+## Plays Stage 2 of the intro sequence (Banana peel slip, parabolic launch, and skydive down the well).
 func play_intro_stage_2() -> void:
-	print("[IntroCutscene] play_intro_stage_2() called.")
 	if not is_instance_valid(_level_node) or not is_instance_valid(_player):
 		push_error("IntroCutscene: Invalid state for Stage 2!")
 		return
 
-	# Re-hide UI in case MainMenu tree_exiting signal made it visible
 	if is_instance_valid(_hud):
 		_hud.visible = false
 	if is_instance_valid(_touch_ui):
 		_touch_ui.visible = false
 
-	# ============================================
-	# STAGE 2 TIMELINE
-	# ============================================
 	var tween := _level_node.create_tween().set_parallel(true)
-	
 	var crouch_delay := 1.20
 	
 	if is_instance_valid(_gf):
@@ -227,7 +219,6 @@ func play_intro_stage_2() -> void:
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.25, 0.65), 0.10)
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.0, 1.0), 0.10)
 
-	# Walk closer
 	if is_instance_valid(_gf):
 		var gf_walk2 := _level_node.create_tween()
 		gf_walk2.tween_interval(crouch_delay)
@@ -237,7 +228,6 @@ func play_intro_stage_2() -> void:
 	bf_walk2.tween_interval(crouch_delay)
 	bf_walk2.tween_property(_player, "global_position:x", banana_x, 0.28).set_trans(Tween.TRANS_LINEAR)
 
-	# SLIP on banana peel
 	var slip_time: float = crouch_delay + 0.30
 
 	tween.tween_callback(func():
@@ -248,23 +238,19 @@ func play_intro_stage_2() -> void:
 				col.set_deferred("disabled", true)
 	).set_delay(slip_time)
 
-	# Slip squash
 	if is_instance_valid(_player_visual):
 		tween.tween_property(_player_visual, "scale", Vector2(1.4, 0.5), 0.1).set_delay(slip_time)
 		tween.tween_property(_player_visual, "scale", Vector2(1.0, 1.0), 0.1).set_delay(slip_time + 0.1)
 
-	# Banana peel flies
 	if is_instance_valid(_banana_prop):
 		tween.tween_property(_banana_prop, "global_position", _banana_prop.global_position + Vector2(-350.0, -450.0), 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(slip_time)
 		tween.tween_property(_banana_prop, "rotation_degrees", -1080.0, 0.8).set_delay(slip_time)
 		tween.tween_property(_banana_prop, "modulate:a", 0.0, 0.3).set_delay(slip_time + 0.5)
 
-	# Box flies up
 	if is_instance_valid(_box):
 		tween.tween_property(_box, "position:y", -100.0, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(slip_time)
 		tween.tween_property(_box, "modulate:a", 0.0, 0.2).set_delay(slip_time + 0.2)
 
-	# Scatter letter particles
 	tween.tween_callback(func():
 		if not is_instance_valid(_level_node) or not is_instance_valid(_player):
 			return
@@ -284,7 +270,6 @@ func play_intro_stage_2() -> void:
 			)
 	).set_delay(slip_time)
 
-	# PARABOLIC ARC
 	var arc_start: float = slip_time
 	var arc_duration: float = 1.0
 	var half_arc: float = arc_duration * 0.5
@@ -297,7 +282,6 @@ func play_intro_stage_2() -> void:
 	if is_instance_valid(_player_visual):
 		tween.tween_property(_player_visual, "rotation_degrees", -360.0, arc_duration).set_delay(arc_start)
 
-	# SKYDIVE FALL
 	var fall_start: float = arc_start + arc_duration
 	var fall_duration: float = 3.0
 	var player_bottom_landing_y: float = bottom_ground_y - 30.0
@@ -307,7 +291,6 @@ func play_intro_stage_2() -> void:
 	if is_instance_valid(_player_visual):
 		tween.tween_property(_player_visual, "rotation_degrees", -1800.0, fall_duration).set_delay(fall_start)
 
-	# Sway
 	tween.tween_callback(func():
 		if not is_instance_valid(_level_node) or not is_instance_valid(_player):
 			return
@@ -324,7 +307,6 @@ func play_intro_stage_2() -> void:
 		sway_tween.tween_property(_player, "global_position:x", well_x, sway_speed * 0.5).set_trans(Tween.TRANS_SINE)
 	).set_delay(fall_start)
 
-	# IMPACT
 	var land_time: float = fall_start + fall_duration
 
 	tween.tween_callback(func():
@@ -341,17 +323,14 @@ func play_intro_stage_2() -> void:
 			_box.queue_free()
 	).set_delay(land_time)
 
-	# Unlock controls
 	var start_game_time: float = land_time + 0.4
 	tween.tween_callback(func():
 		_restore_gameplay_state()
-		emit_signal("intro_completed")
+		intro_completed.emit()
 	).set_delay(start_game_time)
 
-
+## Aborts an active intro cutscene and cleans up spawned story nodes.
 func abort_intro() -> void:
-	print("[IntroCutscene] abort_intro() called. Cleaning up Stage 1 frozen state.")
-	
 	if is_instance_valid(_gf):
 		_gf.queue_free()
 	if is_instance_valid(_box):
@@ -359,7 +338,7 @@ func abort_intro() -> void:
 		
 	_restore_gameplay_state()
 
-
+## Restores player collision, physics processing, and UI overlays after cutscenes.
 func _restore_gameplay_state() -> void:
 	is_playing = false
 	if is_instance_valid(_player):

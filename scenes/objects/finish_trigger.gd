@@ -1,9 +1,13 @@
 extends Area2D
 
-## Finish Goal Trigger at the Summit Peak with Cutscene Sequence
+## Summit Victory Goal Trigger.
+## Dependencies:
+## - Required Autoload: LetterManager (checks get_collected_count() >= required_letters).
+## - Root Level Nodes: "WalkTarget" (defines end walking destination X/Y), "HUD", "TouchControls", "Player".
+
 @export var required_letters: int = 21
 
-## Cutscene Parameters
+@export_group("Cutscene Timing & Motion")
 @export var pop_up_height: float = 180.0
 @export var pause_before_run: float = 0.4
 
@@ -15,15 +19,17 @@ var is_triggered: bool = false
 func _ready() -> void:
 	if not Engine.is_editor_hint():
 		if visual:
-			visual.hide() # Make visual invisible during gameplay
+			visual.hide()
 		body_entered.connect(_on_body_entered)
 
+# Checks letter collection threshold:
+# - If count < 21: displays incomplete prompt via HUD.
+# - If count >= 21: freezes player & initiates summit cutscene sequence.
 func _on_body_entered(body: Node2D) -> void:
 	if is_triggered or not (body is CharacterBody2D):
 		return
 		
-	var lm = get_node_or_null("/root/LetterManager")
-	var collected: int = lm.get_collected_count() if lm else 0
+	var collected: int = LetterManager.get_collected_count()
 	
 	if collected >= required_letters:
 		is_triggered = true
@@ -33,9 +39,7 @@ func _on_body_entered(body: Node2D) -> void:
 
 func _play_finish_sequence(player: CharacterBody2D) -> void:
 	var level_node = get_tree().current_scene
-	print("[FinishTrigger] Outro cutscene triggered!")
 
-	# 1. Lock player controls and disable collision during cutscene
 	player.set_physics_process(false)
 	player.velocity = Vector2.ZERO
 	var player_col = player.get_node_or_null("CollisionShape2D") as CollisionShape2D
@@ -49,29 +53,22 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 	if is_instance_valid(touch_ui):
 		touch_ui.hide()
 
-	# 2. Get Ground Y and target X positions directly from WalkTarget
 	var walk_target_node = level_node.get_node_or_null("WalkTarget")
 
 	var ground_surface_y: float = global_position.y + 35.0
 	if is_instance_valid(walk_target_node):
 		ground_surface_y = walk_target_node.global_position.y
-		print("[FinishTrigger] Using WalkTarget Y as Ground Y: ", ground_surface_y)
 
-	var player_ground_y: float = ground_surface_y - 30.0 # Feet rest on ground surface
+	var player_ground_y: float = ground_surface_y - 30.0
 	var start_pos := player.global_position
-
-	# Well exit pop-out lands on the left summit platform (X = -90)
 	var left_land_x: float = global_position.x - 88.0
 
-	# Walk target X (where GF stands and player walks to)
 	var right_target_x: float = left_land_x + 270.0
 	if is_instance_valid(walk_target_node):
 		right_target_x = walk_target_node.global_position.x
-		print("[FinishTrigger] Referenced WalkTarget X at: ", right_target_x)
 
 	var peak_y: float = minf(start_pos.y, player_ground_y) - pop_up_height
 
-	# 3. Create Girlfriend standing at WalkTarget position facing left towards player
 	var gf = level_node.get_node_or_null("GirlfriendVisual")
 	if not is_instance_valid(gf):
 		var gf_node := TextureRect.new()
@@ -85,19 +82,16 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 		gf_node.size = Vector2(65, 65)
 		gf_node.pivot_offset = Vector2(32.5, 65.0)
 		gf_node.global_position = Vector2(right_target_x, ground_surface_y - 65.0)
-		gf_node.scale = Vector2(1.0, 1.0) # Facing left towards well
+		gf_node.scale = Vector2(1.0, 1.0)
 		level_node.add_child(gf_node)
 		gf = gf_node
 
-	# 4. Outro Animation Sequence
 	var arc_duration: float = 0.9
 	var half_arc: float = arc_duration * 0.5
 
-	# Horizontal X Tween
 	var x_tween := level_node.create_tween()
 	x_tween.tween_property(player, "global_position:x", left_land_x, arc_duration).set_trans(Tween.TRANS_LINEAR)
 
-	# Vertical Y Arc Tween (Rise then Fall to player_ground_y!)
 	var y_tween := level_node.create_tween()
 	y_tween.tween_property(player, "global_position:y", peak_y, half_arc).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	y_tween.tween_property(player, "global_position:y", player_ground_y, half_arc).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -107,7 +101,6 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 		var spin_tween := level_node.create_tween()
 		spin_tween.tween_property(player_visual, "rotation_degrees", 360.0, arc_duration)
 
-	# Stage B: Land on left platform at t = 1.2s
 	var landing_delay := level_node.create_tween()
 	landing_delay.tween_interval(arc_duration)
 	landing_delay.tween_callback(func():
@@ -115,20 +108,18 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 			player.global_position.y = player_ground_y
 		if is_instance_valid(player_visual):
 			player_visual.rotation_degrees = 0.0
-			player_visual.scale = Vector2(-1.35, 0.65) # Squash landing
+			player_visual.scale = Vector2(-1.35, 0.65)
 	)
-	landing_delay.tween_property(player_visual, "scale", Vector2(-1.0, 1.0), 0.12) # Unsquash & face right (-1.0)
+	landing_delay.tween_property(player_visual, "scale", Vector2(-1.0, 1.0), 0.12)
 
-	# GF excited bounce when player lands
 	if is_instance_valid(gf):
 		var gf_bounce := level_node.create_tween()
 		gf_bounce.tween_interval(arc_duration + 0.1)
 		gf_bounce.tween_property(gf, "scale", Vector2(1.25, 0.65), 0.10)
 		gf_bounce.tween_property(gf, "scale", Vector2(1.0, 1.0), 0.10)
 
-	# Stage C: Walk across platform to WalkTarget
 	var walk_start_time: float = arc_duration + 0.3 + pause_before_run
-	var walk_target_x: float = right_target_x - 35.0 # Stop 35px in front of GF
+	var walk_target_x: float = right_target_x - 35.0
 	var walk_dist: float = absf(walk_target_x - left_land_x)
 	var walk_dur: float = clampf(walk_dist / 220.0, 0.6, 2.0)
 
@@ -136,7 +127,6 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 	walk_x_tween.tween_interval(walk_start_time)
 	walk_x_tween.tween_property(player, "global_position:x", walk_target_x, walk_dur).set_trans(Tween.TRANS_LINEAR)
 
-	# Player waddle steps
 	var waddle_timer := level_node.create_tween()
 	waddle_timer.tween_interval(walk_start_time)
 	waddle_timer.tween_callback(func():
@@ -157,7 +147,6 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 		)
 	)
 
-	# Stage D: Inverted See-saw Emote (BF squashes while GF stretches, and vice-versa!)
 	var reunion_time: float = walk_start_time + walk_dur
 	var crouch_duration: float = 2.0
 
@@ -173,34 +162,29 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 			gf.rotation_degrees = 0.0
 			gf.scale = Vector2(1.0, 1.0)
 
-		# See-saw squash & stretch tween (BF down/GF up ➔ BF up/GF down)
-		var step_dur := 0.08 # 0.08s per phase (super snappy!)
-		var num_cycles := 11 # 11 cycles * 0.16s = ~1.76s + reset
+		var step_dur := 0.08
+		var num_cycles := 11
 
 		var p_tween := level_node.create_tween()
 		var gf_tween := level_node.create_tween()
 
 		for i in range(num_cycles):
-			# Phase 1: BF Squashes (short/wide), GF Stretches (tall/narrow)
 			if is_instance_valid(player_visual):
 				p_tween.tween_property(player_visual, "scale", Vector2(-1.35, 0.60), step_dur)
 			if is_instance_valid(gf):
 				gf_tween.tween_property(gf, "scale", Vector2(0.70, 1.35), step_dur)
 
-			# Phase 2: BF Stretches (tall/narrow), GF Squashes (short/wide)
 			if is_instance_valid(player_visual):
 				p_tween.tween_property(player_visual, "scale", Vector2(-0.70, 1.35), step_dur)
 			if is_instance_valid(gf):
 				gf_tween.tween_property(gf, "scale", Vector2(1.35, 0.60), step_dur)
 
-		# Reset back to neutral resting scale at the end
 		if is_instance_valid(player_visual):
 			p_tween.tween_property(player_visual, "scale", Vector2(-1.0, 1.0), 0.10)
 		if is_instance_valid(gf):
 			gf_tween.tween_property(gf, "scale", Vector2(1.0, 1.0), 0.10)
 	)
 
-	# Stage E: Trigger Victory Celebration Screen after 2s Minecraft crouch greeting
 	var finish_time: float = reunion_time + crouch_duration
 	var victory_tween := level_node.create_tween()
 	victory_tween.tween_interval(finish_time)
@@ -212,11 +196,6 @@ func _trigger_victory() -> void:
 	var hud = get_tree().current_scene.get_node_or_null("HUD")
 	if hud and hud.has_method("show_summit_celebration"):
 		hud.show_summit_celebration()
-	else:
-		var celeb_scene = load("res://scenes/ui/summit_celebration.tscn")
-		if celeb_scene:
-			var celeb = celeb_scene.instantiate()
-			get_tree().current_scene.add_child(celeb)
 
 func _show_incomplete_prompt(collected: int, required: int) -> void:
 	var hud = get_tree().current_scene.get_node_or_null("HUD")

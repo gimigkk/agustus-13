@@ -1,12 +1,15 @@
 @tool
 extends StaticBody2D
 
-## Centered StaticBody2D Platform
+## Platform entity with editable size and color properties.
+
+## Size dimensions of the platform bounding box.
 @export var size: Vector2 = Vector2(200, 30):
 	set(value):
 		size = value
 		_update_platform()
 
+## Visual tint color of the platform.
 @export var color: Color = Color(0.35, 0.4, 0.5, 1.0):
 	set(value):
 		color = value

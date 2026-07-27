@@ -1,27 +1,30 @@
 extends CanvasLayer
 
-## Main Menu HUD overlay controller
+## Main Menu UI overlay for starting a New Game or continuing progress.
+
+## Emitted when the user confirms starting a New Game. Listened to by level scene controllers.
 signal new_game_started
+
+## Emitted when the user continues gameplay. Listened to by level scene controllers.
 signal continue_started
 
 @onready var btn_new_game: UiverseButton = $ButtonContainer/BtnNewGame
 @onready var btn_continue: UiverseButton = $ButtonContainer/BtnContinue
 
+# Configuration flags set by level controller:
+# - is_boot_menu: active at boot summit before gameplay; closing unblocks Stage 2 cutscene.
+# - is_save_menu: active over existing save data during gameplay.
 var is_boot_menu: bool = false
 var is_save_menu: bool = false
 
 func _ready() -> void:
-	# Hide gameplay HUD and touch controls while main menu is active
 	_set_gameplay_ui_visible(false)
 	tree_exiting.connect(_on_tree_exiting)
 
-	var sm = get_node_or_null("/root/SaveManager")
-	var has_save: bool = sm.has_save_data() if sm else false
+	var has_save: bool = SaveManager.has_save_data()
 	var is_in_game: bool = not is_boot_menu
 	
-	# Enable Continue if save data exists OR if currently in active gameplay
 	btn_continue.disabled = not (has_save or is_in_game)
-	
 	btn_new_game.pressed.connect(_on_new_game_pressed)
 	btn_continue.pressed.connect(_on_continue_pressed)
 
@@ -29,10 +32,9 @@ func _on_tree_exiting() -> void:
 	if not is_boot_menu:
 		_set_gameplay_ui_visible(true)
 
+# Requires root scene (current_scene) to locate "HUD" and "TouchControls" nodes.
 func _set_gameplay_ui_visible(p_visible: bool) -> void:
-	if not is_inside_tree() or not get_tree():
-		return
-	var current = get_tree().current_scene
+	var current = get_tree().current_scene if get_tree() else null
 	if not current:
 		return
 	var hud = current.get_node_or_null("HUD")
@@ -42,17 +44,14 @@ func _set_gameplay_ui_visible(p_visible: bool) -> void:
 	if touch:
 		touch.visible = p_visible
 
+# New Game flow:
+# - Clears SaveManager & LetterManager state.
+# - If called from boot menu: frees menu to trigger cutscene in test_level.gd.
+# - If called in-game: reloads level scene to reset player position to summit.
 func _on_new_game_pressed() -> void:
-	var sm = get_node_or_null("/root/SaveManager")
-	if sm:
-		sm.clear_save()
-		if is_boot_menu:
-			sm.force_intro_on_launch = false
-		else:
-			sm.force_intro_on_launch = true
-	var lm = get_node_or_null("/root/LetterManager")
-	if lm:
-		lm.reset_progress()
+	SaveManager.clear_save()
+	SaveManager.force_intro_on_launch = not is_boot_menu
+	LetterManager.reset_progress()
 	
 	new_game_started.emit()
 	
@@ -61,10 +60,11 @@ func _on_new_game_pressed() -> void:
 	else:
 		get_tree().reload_current_scene()
 
-
+# Continue flow:
+# - Restores saved position via SaveManager.load_game().
+# - Frees menu layer to expose underlying gameplay.
 func _on_continue_pressed() -> void:
-	var sm = get_node_or_null("/root/SaveManager")
-	if sm and sm.has_save_data():
-		sm.load_game()
+	if SaveManager.has_save_data():
+		SaveManager.load_game()
 	continue_started.emit()
 	queue_free()

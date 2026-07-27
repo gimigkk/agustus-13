@@ -1,10 +1,13 @@
 extends Node
 
-## SaveManager Autoload Singleton
+## Autoload Singleton managing disk save file serialization, position tracking, and progress persistence.
+
+## Emitted when save data is loaded into memory. Listened to by game state restore logic.
 signal save_loaded(data: Dictionary)
 
 const SAVE_PATH: String = "user://save_data.json"
 
+# Set true by MainMenu on New Game to force cutscene flow on next level load.
 var force_intro_on_launch: bool = false
 
 var current_save_data: Dictionary = {
@@ -17,6 +20,7 @@ var current_save_data: Dictionary = {
 func _ready() -> void:
 	load_game()
 
+# OS Window Close / Mobile Back Button Hook: automatically triggers save on app termination.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_WM_GO_BACK_REQUEST:
 		save_current_state()
@@ -24,21 +28,20 @@ func _notification(what: int) -> void:
 func has_save_data() -> bool:
 	return FileAccess.file_exists(SAVE_PATH)
 
+# Queries current_scene for "Player" (CharacterBody2D). Saves position ONLY if player physics is active.
 func save_current_state() -> bool:
 	if not get_tree() or not get_tree().current_scene:
 		return false
-	var player = get_tree().current_scene.get_node_or_null("Player")
-	var lm = get_node_or_null("/root/LetterManager")
-	if not is_instance_valid(player) or not is_instance_valid(lm):
+	var player = get_tree().current_scene.get_node_or_null("Player") as CharacterBody2D
+	if not is_instance_valid(player):
 		return false
 		
-	# Prevent saving during scripted cutscenes (when player physics is disabled)
 	if not player.is_physics_processing():
-		print("[SaveManager] Aborting save: player physics is disabled (likely in cutscene).")
 		return false
 		
-	return save_game(player.global_position, lm.collected_letter_ids)
+	return save_game(player.global_position, LetterManager.collected_letter_ids)
 
+## Writes player position and letter IDs to user save JSON file.
 func save_game(player_pos: Vector2, collected_letters: Array) -> bool:
 	var data := {
 		"player_pos_x": player_pos.x,
@@ -60,6 +63,7 @@ func save_game(player_pos: Vector2, collected_letters: Array) -> bool:
 	current_save_data = data
 	return true
 
+## Reads save data from JSON file into current_save_data dictionary.
 func load_game() -> Dictionary:
 	if not FileAccess.file_exists(SAVE_PATH):
 		return current_save_data
@@ -80,7 +84,7 @@ func load_game() -> Dictionary:
 		
 	if json.data is Dictionary:
 		current_save_data = json.data
-		emit_signal("save_loaded", current_save_data)
+		save_loaded.emit(current_save_data)
 		
 	return current_save_data
 

@@ -1,8 +1,12 @@
 extends Node
 
-## LetterManager Autoload Singleton to handle letter messages and collection state
+## Autoload Singleton managing letter messages, collection tracking, and save state synchronization.
+
+## Emitted when a letter or bundle of letters is collected in-game.
+## Listened to by: HUD (_on_letter_collected triggers flying paper UI animation).
 signal letter_collected(letter_id: int, message: String, total_collected: int, collect_pos: Vector2)
 
+## Total number of collectible letters in the game.
 const TOTAL_LETTERS: int = 21
 
 var messages: Dictionary = {}
@@ -10,16 +14,15 @@ var collected_letter_ids: Array = []
 
 func _ready() -> void:
 	load_messages()
-	# Restore collected letters from save (sanitized & deduplicated)
-	var sm = get_node_or_null("/root/SaveManager")
-	if sm and sm.current_save_data.has("collected_letters"):
-		var raw_list: Array = sm.current_save_data["collected_letters"]
+	if SaveManager.current_save_data.has("collected_letters"):
+		var raw_list: Array = SaveManager.current_save_data["collected_letters"]
 		collected_letter_ids.clear()
 		for item in raw_list:
 			var int_id := int(item)
 			if int_id >= 1 and int_id <= TOTAL_LETTERS and not collected_letter_ids.has(int_id):
 				collected_letter_ids.append(int_id)
 
+## Parses messages from the letters JSON data configuration.
 func load_messages() -> void:
 	var path := "res://letters.json"
 	if not FileAccess.file_exists(path):
@@ -42,15 +45,18 @@ func load_messages() -> void:
 	else:
 		push_error("LetterManager: Invalid JSON in letters file.")
 
+## Returns the text message associated with a given letter ID.
 func get_letter_message(letter_id: int) -> String:
 	var key := str(letter_id)
 	if messages.has(key):
 		return str(messages[key])
 	return "Letter #%d: A special memory..." % letter_id
 
+## Returns true if the specified letter ID has been collected.
 func is_letter_collected(letter_id: int) -> bool:
 	return collected_letter_ids.has(int(letter_id))
 
+## Returns total count of unique valid letters collected so far.
 func get_collected_count() -> int:
 	var unique_ids: Array = []
 	for id in collected_letter_ids:
@@ -59,6 +65,7 @@ func get_collected_count() -> int:
 			unique_ids.append(int_id)
 	return unique_ids.size()
 
+## Returns true if all letters in a specified sequence range are collected.
 func is_bundle_collected(start_id: int, count: int) -> bool:
 	for i in range(count):
 		var id := start_id + i
@@ -84,13 +91,9 @@ func collect_letter_bundle(start_id: int, count: int, player_pos: Vector2 = Vect
 			
 	if newly_collected:
 		var total := get_collected_count()
-		# Auto-save game state
-		var sm = get_node_or_null("/root/SaveManager")
-		if sm:
-			sm.save_game(player_pos, collected_letter_ids)
-			
+		SaveManager.save_game(player_pos, collected_letter_ids)
 		var final_collect_pos := collect_world_pos if collect_world_pos != Vector2.ZERO else player_pos
-		emit_signal("letter_collected", last_id, last_msg, total, final_collect_pos)
+		letter_collected.emit(last_id, last_msg, total, final_collect_pos)
 		return true
 		
 	return false

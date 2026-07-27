@@ -1,6 +1,7 @@
 extends CanvasLayer
 
-## Letter Inventory modal - 3x7 Grid of 21 Letter slots
+## Letter Inventory modal displaying a grid of collected letters and locked slots.
+
 @onready var control: Control = $Control
 @onready var title_label: Label = $Control/Panel/MarginContainer/VBoxContainer/Header/TitleLabel
 @onready var grid_container: GridContainer = $Control/Panel/MarginContainer/VBoxContainer/GridContainer
@@ -10,29 +11,27 @@ func _ready() -> void:
 	control.hide()
 	close_btn.pressed.connect(hide_inventory)
 
+## Opens the inventory grid overlay and pauses gameplay.
 func open_inventory() -> void:
-	var lm = get_node_or_null("/root/LetterManager")
-	var count: int = lm.collected_letter_ids.size() if lm else 0
+	var count: int = LetterManager.collected_letter_ids.size()
 	title_label.text = "Letters (%d / 21)" % count
 	
 	_populate_grid()
 	control.show()
 	get_tree().paused = true
 
+## Closes the inventory grid overlay and unpauses gameplay.
 func hide_inventory() -> void:
 	control.hide()
 	get_tree().paused = false
 
+## Clears and rebuilds letter collection card buttons.
 func _populate_grid() -> void:
-	# Clear existing items
 	for child in grid_container.get_children():
 		child.queue_free()
-		
-	var lm = get_node_or_null("/root/LetterManager")
 	
 	for i in range(1, 22):
-		var is_collected: bool = lm.is_letter_collected(i) if lm else false
-		
+		var is_collected: bool = LetterManager.is_letter_collected(i)
 		var card := Button.new()
 		card.custom_minimum_size = Vector2(175, 95)
 		card.add_theme_font_size_override("font_size", 18)
@@ -46,9 +45,10 @@ func _populate_grid() -> void:
 			
 		grid_container.add_child(card)
 
+## Opens full letter popup view for a selected collected letter ID.
 func _on_letter_clicked(letter_id: int) -> void:
 	var popup = get_node_or_null("../LetterPopup")
-	if not popup:
-		popup = get_node_or_null("/root/TestLevel/HUD/LetterPopup")
-	if popup and popup.has_method("show_letter"):
+	if not popup and get_tree().current_scene:
+		popup = get_tree().current_scene.get_node_or_null("HUD/LetterPopup")
+	if popup:
 		popup.show_letter(letter_id)

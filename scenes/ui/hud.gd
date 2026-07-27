@@ -1,6 +1,7 @@
 extends CanvasLayer
 
-## HUD script managing in-game counter button, menu, and inventory modal
+## In-game HUD overlay for letter count tracking, developer hotkeys, and inventory modal access.
+
 @onready var control: Control = $Control
 @onready var letter_counter_btn: Button = $Control/TopBar/MarginContainer/HBoxContainer/LetterCounterBtn
 @onready var menu_btn: Control = $Control/TopBar/MarginContainer/HBoxContainer/MenuBtn
@@ -9,24 +10,19 @@ extends CanvasLayer
 var current_displayed_count: int = 0
 
 func _ready() -> void:
-	if control:
-		control.show()
-		
-	var lm = get_node_or_null("/root/LetterManager")
-	var count: int = lm.get_collected_count() if lm else 0
+	control.show()
+	
+	var count: int = LetterManager.get_collected_count()
 	current_displayed_count = count
 	update_counter(count)
 	
-	if lm:
-		if not lm.letter_collected.is_connected(_on_letter_collected):
-			lm.letter_collected.connect(_on_letter_collected)
-	if letter_counter_btn:
-		if not letter_counter_btn.pressed.is_connected(_on_counter_pressed):
-			letter_counter_btn.pressed.connect(_on_counter_pressed)
-	if menu_btn:
-		if menu_btn.has_signal("pressed") and not menu_btn.pressed.is_connected(_on_menu_pressed):
-			menu_btn.pressed.connect(_on_menu_pressed)
+	# Listen to global LetterManager signal to trigger flying paper counter animation
+	LetterManager.letter_collected.connect(_on_letter_collected)
+	letter_counter_btn.pressed.connect(_on_counter_pressed)
+	if menu_btn.has_signal("pressed"):
+		menu_btn.pressed.connect(_on_menu_pressed)
 
+# Developer hotkeys for instant summit completion (F1) and intro cutscene test (F2)
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_F1:
@@ -34,28 +30,28 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_F2:
 			_on_debug_intro_pressed()
 
+## Updates the letter count text on the HUD button.
 func update_counter(count: int) -> void:
-	if letter_counter_btn:
-		var lm = get_node_or_null("/root/LetterManager")
-		var total_available: int = lm.TOTAL_LETTERS if lm else 21
-		var safe_count: int = clampi(count, 0, total_available)
-		current_displayed_count = safe_count
-		letter_counter_btn.text = "%d / %d Letters" % [safe_count, total_available]
+	var total_available: int = LetterManager.TOTAL_LETTERS
+	var safe_count: int = clampi(count, 0, total_available)
+	current_displayed_count = safe_count
+	letter_counter_btn.text = "%d / %d Letters" % [safe_count, total_available]
 
+## Instantiates and presents the summit victory celebration overlay.
 func show_summit_celebration() -> void:
 	var celeb_scene = load("res://scenes/ui/summit_celebration.tscn")
 	if celeb_scene:
-		var celeb = celeb_scene.instantiate()
-		add_child(celeb)
+		add_child(celeb_scene.instantiate())
 
+## Displays a prompt informing the player how many letters remain for the full ending.
 func show_incomplete_prompt(collected: int, required: int) -> void:
 	var popup_scene = load("res://scenes/ui/letter_popup.tscn")
 	if popup_scene:
 		var popup = popup_scene.instantiate()
 		add_child(popup)
-		if popup.has_method("display_message"):
-			popup.display_message("Summit Reached!", "You made it to the top! But you still need to collect all %d letters to unlock the birthday surprise! (%d/%d collected)" % [required, collected, required])
+		popup.display_message("Summit Reached!", "You made it to the top! But you still need to collect all %d letters to unlock the birthday surprise! (%d/%d collected)" % [required, collected, required])
 
+## Callback when a letter is collected in-game.
 func _on_letter_collected(_id: int, _msg: String, total: int, collect_pos: Vector2 = Vector2.ZERO) -> void:
 	_animate_flying_papers(collect_pos, total)
 
@@ -222,33 +218,23 @@ func _on_counter_pressed() -> void:
 func _on_menu_pressed() -> void:
 	var existing = get_tree().current_scene.get_node_or_null("MainMenu")
 	if not is_instance_valid(existing):
-		var sm = get_node_or_null("/root/SaveManager")
-		if sm and sm.has_method("save_current_state"):
-			sm.save_current_state()
-			
+		SaveManager.save_current_state()
 		var menu_scene = load("res://scenes/ui/main_menu.tscn")
 		if menu_scene:
-			var menu = menu_scene.instantiate()
-			get_tree().current_scene.add_child(menu)
-
+			get_tree().current_scene.add_child(menu_scene.instantiate())
 
 func _on_debug_intro_pressed() -> void:
 	var current = get_tree().current_scene
-	if current and current.has_method("play_intro_sequence"):
-		current.play_intro_sequence()
+	if current and current.has_method("play_full_intro_sequence"):
+		current.play_full_intro_sequence()
 
 func _on_debug_end_pressed() -> void:
-	# Grant all 21 letters for testing
-	var lm = get_node_or_null("/root/LetterManager")
-	if lm:
-		lm.collect_letter_bundle(1, 21)
-		
-	# Find FinishTrigger and trigger cutscene directly
+	LetterManager.collect_letter_bundle(1, 21)
 	var current = get_tree().current_scene
 	var finish_trigger = current.get_node_or_null("FinishTrigger") if current else null
 	var player = current.get_node_or_null("Player") if current else null
 	
-	if finish_trigger and player and finish_trigger.has_method("_play_finish_sequence"):
+	if finish_trigger and player:
 		player.global_position = finish_trigger.global_position
 		finish_trigger._play_finish_sequence(player)
 	else:

@@ -1,18 +1,42 @@
 extends CharacterBody2D
 
-## Player Movement & Jump Controller for Mobile Platforming (Jump King Charging Style)
+## Player Movement & Jump Controller implementing Jump King style charge-jumping physics.
+
+## Maximum horizontal ground movement speed.
 @export var speed: float = 320.0
+
+## Minimum vertical jump impulse when instantly tapped.
 @export var min_jump_velocity: float = -350.0
-@export var max_jump_velocity: float = -800.0 # Matches original jump power
-@export var max_charge_time: float = 0.55 # Seconds to reach 100% jump power
+
+## Maximum vertical jump impulse reached at full 100% charge.
+@export var max_jump_velocity: float = -800.0
+
+## Hold time required in seconds to reach maximum jump power.
+@export var max_charge_time: float = 0.55
+
+## Ground acceleration rate.
 @export var acceleration: float = 4500.0
+
+## Ground friction deceleration rate.
 @export var friction: float = 2000.0
-@export var air_acceleration: float = 800.0 # Slight air adjustment like Jump King
-@export var gravity_scale: float = 1.3 # Gentle base gravity multiplier
-@export var fall_gravity_multiplier: float = 1.4 # Natural snappy fall gravity
+
+## Air acceleration rate.
+@export var air_acceleration: float = 800.0
+
+## Base gravity multiplier.
+@export var gravity_scale: float = 1.3
+
+## Fall gravity multiplier for snappy downward physics.
+@export var fall_gravity_multiplier: float = 1.4
+
+## Max allowed grace period after walking off edges to trigger a jump.
 @export var coyote_time_max: float = 0.12
-@export var jump_flip_speed: float = 720.0 # Airborne spin speed (720 deg/sec = 2 full flips/sec)
-@export var load_save_position: bool = false # Disabled for level blockout testing
+
+## Airborne flip rotation speed in degrees per second.
+@export var jump_flip_speed: float = 720.0
+
+## Load player position from SaveManager on ready if true.
+@export var load_save_position: bool = false
 
 # Gravity settings
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 980.0)
@@ -41,27 +65,22 @@ var base_visual_pos: Vector2 = Vector2(-32.5, -35.0)
 @onready var shadow: Control = get_node_or_null("Shadow")
 
 func _ready() -> void:
-	if visual:
-		base_visual_pos = visual.position
-	if camera:
-		camera.top_level = true
+	base_visual_pos = visual.position
+	camera.top_level = true
 	if not Engine.is_editor_hint() and load_save_position:
-		var sm = get_node_or_null("/root/SaveManager")
-		if sm and sm.current_save_data.get("has_save", false):
-			var px: float = float(sm.current_save_data.get("player_pos_x", global_position.x))
-			var py: float = float(sm.current_save_data.get("player_pos_y", global_position.y))
+		if SaveManager.current_save_data.get("has_save", false):
+			var px: float = float(SaveManager.current_save_data.get("player_pos_x", global_position.x))
+			var py: float = float(SaveManager.current_save_data.get("player_pos_y", global_position.y))
 			global_position = Vector2(px, py)
 
+## Returns the current jump charge percentage (0.0 to 1.0).
 func get_charge_ratio() -> float:
 	return charge_ratio if is_charging_jump else 0.0
 
 func _process(delta: float) -> void:
-	if camera:
-		# Lock camera horizontally to world origin (x = 0.0), track player vertically only
-		camera.global_position.x = 0.0
-		camera.global_position.y = roundf(global_position.y)
+	camera.global_position.x = 0.0
+	camera.global_position.y = roundf(global_position.y)
 
-	# Smoothly fade out ambient glow and drop shadow when player climbs outside the well (Y <= -3850)
 	var well_exit_y: float = -3850.0
 	var is_inside_well: bool = global_position.y > well_exit_y
 	
@@ -75,7 +94,6 @@ func _process(delta: float) -> void:
 		shadow.modulate.a = move_toward(shadow.modulate.a, target_shadow_alpha, delta * 2.0)
 		shadow.visible = shadow.modulate.a > 0.001
 
-	# Calculate current horizontal speed (works for physics movement AND cutscene position movement)
 	var calc_vel_x: float = 0.0
 	if delta > 0.0001:
 		calc_vel_x = (global_position.x - last_global_pos_x) / delta
@@ -220,12 +238,8 @@ func _on_jumped() -> void:
 	_apply_squash_stretch(Vector2(0.55, 1.45), 0.38)
 
 func _on_landed() -> void:
-	# Auto-save game state every time the player lands safely on a platform
-	var sm = get_node_or_null("/root/SaveManager")
-	if sm and sm.has_method("save_current_state"):
-		sm.save_current_state()
+	SaveManager.save_current_state()
 
-	# Normalize rotation angle to shortest path (-180 to 180) to prevent freak-out spins
 	if visual:
 		var current_rot := fmod(visual.rotation_degrees, 360.0)
 		if current_rot > 180.0:
@@ -234,11 +248,9 @@ func _on_landed() -> void:
 			current_rot += 360.0
 		visual.rotation_degrees = current_rot
 		
-		# Smoothly recover to upright 0 degrees around center pivot first
 		var land_tween := create_tween()
 		land_tween.tween_property(visual, "rotation_degrees", 0.0, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		
-	# Squash horizontally on impact landing only if not holding jump charge
 	if not Input.is_action_pressed("jump"):
 		_apply_squash_stretch(Vector2(1.4, 0.6), 0.32)
 
