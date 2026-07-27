@@ -220,7 +220,17 @@ func _on_counter_pressed() -> void:
 		letter_inventory.open_inventory()
 
 func _on_menu_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
+	var existing = get_tree().current_scene.get_node_or_null("MainMenu")
+	if not is_instance_valid(existing):
+		var sm = get_node_or_null("/root/SaveManager")
+		if sm and sm.has_method("save_current_state"):
+			sm.save_current_state()
+			
+		var menu_scene = load("res://scenes/ui/main_menu.tscn")
+		if menu_scene:
+			var menu = menu_scene.instantiate()
+			get_tree().current_scene.add_child(menu)
+
 
 func _on_debug_intro_pressed() -> void:
 	var current = get_tree().current_scene

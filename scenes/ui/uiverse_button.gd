@@ -26,6 +26,14 @@ class_name UiverseButton
 		if top_button:
 			top_button.add_theme_font_size_override("font_size", val)
 
+@export var disabled: bool = false:
+	set(val):
+		disabled = val
+		if top_button:
+			top_button.disabled = val
+		modulate.a = 0.4 if val else 1.0
+
+
 @export_group("3D Elevation Offsets")
 @export var offset_rest: float = -12.0:
 	set(val):
@@ -77,6 +85,9 @@ func _setup_nodes() -> void:
 		add_child(top_button)
 
 	top_button.focus_mode = Control.FOCUS_NONE
+	top_button.disabled = disabled
+	modulate.a = 0.4 if disabled else 1.0
+
 	if not is_externally_pressed:
 		top_button.position.y = offset_rest
 	top_button.text = text

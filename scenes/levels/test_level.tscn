@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://c8testlevel01"]
+[gd_scene load_steps=27 format=3 uid="uid://c8testlevel01"]
 
 [ext_resource type="Script" uid="uid://by76834eke6rf" path="res://scenes/levels/test_level.gd" id="1_level_script"]
 [ext_resource type="PackedScene" uid="uid://c8player0001" path="res://scenes/player/player.tscn" id="1_player"]
@@ -10,7 +10,6 @@
 [ext_resource type="PackedScene" uid="uid://c7egs5hou1s3y" path="res://scenes/objects/banana_peel.tscn" id="7_cyt5c"]
 [ext_resource type="PackedScene" path="res://scenes/objects/fall_target.tscn" id="8_falltarget"]
 [ext_resource type="PackedScene" path="res://scenes/objects/walk_target.tscn" id="9_walktarget"]
-[ext_resource type="PackedScene" path="res://scenes/objects/level_blackout.tscn" id="10_2mu0v"]
 [ext_resource type="Texture2D" uid="uid://dmbf65tyr7hdr" path="res://assets/level/slices/bg_slice_0.png" id="11_bg0"]
 [ext_resource type="Texture2D" uid="uid://r1lkxb3ma4eu" path="res://assets/level/slices/bg_slice_1.png" id="12_bg1"]
 [ext_resource type="Texture2D" uid="uid://b8ko0ibgn2gv4" path="res://assets/level/slices/bg_slice_2.png" id="13_bg2"]
@@ -55,9 +54,9 @@ color = Color(0, 0, 0, 1)
 [node name="SkyBG" type="TextureRect" parent="."]
 z_index = -10
 offset_left = -400.0
-offset_top = -4644.0
+offset_top = -4784.0
 offset_right = 400.0
-offset_bottom = -3844.0
+offset_bottom = -3984.0
 texture = SubResource("GradientTex_sky")
 expand_mode = 4
 
@@ -610,7 +609,3 @@ position = Vector2(2, 1221)
 
 [node name="WalkTarget" parent="." instance=ExtResource("9_walktarget")]
 position = Vector2(180, -4004)
-
-[node name="LevelBlackout" parent="." instance=ExtResource("10_2mu0v")]
-visible = false
-position = Vector2(3, -3877)

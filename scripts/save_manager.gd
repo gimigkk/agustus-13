@@ -17,8 +17,27 @@ var current_save_data: Dictionary = {
 func _ready() -> void:
 	load_game()
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		save_current_state()
+
 func has_save_data() -> bool:
 	return FileAccess.file_exists(SAVE_PATH)
+
+func save_current_state() -> bool:
+	if not get_tree() or not get_tree().current_scene:
+		return false
+	var player = get_tree().current_scene.get_node_or_null("Player")
+	var lm = get_node_or_null("/root/LetterManager")
+	if not is_instance_valid(player) or not is_instance_valid(lm):
+		return false
+		
+	# Prevent saving during scripted cutscenes (when player physics is disabled)
+	if not player.is_physics_processing():
+		print("[SaveManager] Aborting save: player physics is disabled (likely in cutscene).")
+		return false
+		
+	return save_game(player.global_position, lm.collected_letter_ids)
 
 func save_game(player_pos: Vector2, collected_letters: Array) -> bool:
 	var data := {

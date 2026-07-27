@@ -220,6 +220,11 @@ func _on_jumped() -> void:
 	_apply_squash_stretch(Vector2(0.55, 1.45), 0.38)
 
 func _on_landed() -> void:
+	# Auto-save game state every time the player lands safely on a platform
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("save_current_state"):
+		sm.save_current_state()
+
 	# Normalize rotation angle to shortest path (-180 to 180) to prevent freak-out spins
 	if visual:
 		var current_rot := fmod(visual.rotation_degrees, 360.0)
