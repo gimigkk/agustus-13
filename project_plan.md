@@ -70,18 +70,23 @@
 - [x] Implement Summit finish cutscene (automatic finish trigger at peak checking all 21 letters, well pop-out arc, run to girlfriend, and 21st Birthday Victory modal).
 
 ### Phase 3: Polish, Art & Audio
-- [ ] Export/screenshot the Godot level blockout and import it into Figma/Photoshop.
-- [ ] Hand-paint the environment art over the blockout and export it as large background slices.
-- [ ] Import the painted backgrounds into Godot and align them perfectly over the invisible collision blocks.
-- [ ] Add the hand-drawn derpy chibi character sprites and animations.
-- [ ] Add player animations (Idle, Walk, Jump, Fall).
+- [x] Export/screenshot the Godot level blockout and import it into Figma/Photoshop.
+- [x] Hand-paint the environment art over the blockout and export it as large background slices.
+- [x] Import the painted backgrounds into Godot and align them perfectly over the invisible collision blocks.
+- [x] Add the hand-drawn derpy chibi character sprites and animations.
+- [x] Add player animations (Idle, Walk, Jump, Fall).
 - [x] Add a UI HUD to show how many letters have been collected, with interactive inventory journal modal.
 - [ ] Implement custom SFX and YouTube-sourced BGM (ensure credits are included at the end).
+- [ ] Inventory Hud redesign
+- [ ] Top Bar Hud redesign
+- [ ] Open Letter Hud. Plan to add a 3d animation of the letter itself opening from being folded. Need to find out if possible via code or not.
+- [ ] ~Finish Modal~ Show main menu with new "Read Letters" button, showing inventory without playing the game. Also need a separate save file tracker so the letters acts as an achievent type of thing. A global inventory. When starting new game letter doesn't dissapear from this one.
 
 ### Phase 4: The Birthday Surprise & Release
 - [x] Create the "Summit" scene—a celebratory screen that triggers when the top is reached (checking if all 21 letters are found).
-- [ ] Playtest thoroughly to ensure it is fun and not overly frustrating.
-- [ ] Export Android APK. Delivery: Send via WhatsApp (fallback: let her play it directly on your phone).
+- [ ] Block the well if not all letters are collected, make the counter shake as an indicator.
+- [X] Playtest thoroughly to ensure it is fun and not overly frustrating.
+- [ ] Export Android APK. Delivery: Send via WhatsApp (fallback: let her play it directly on my phone).
 
 ## 7. Next Steps to Consider
 * **The Letters:** Do the 21 letters spell something out, or are they just numbered items (1 to 21)?
