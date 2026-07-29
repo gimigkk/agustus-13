@@ -545,26 +545,26 @@ scale = Vector2(1.16, 6.64)
 [node name="Collectibles" type="Node2D" parent="."]
 
 [node name="Letter1" parent="Collectibles" instance=ExtResource("4_letter")]
-position = Vector2(337, -1953)
+position = Vector2(-284, 968)
 letter_count = 3
 
 [node name="Letter4" parent="Collectibles" instance=ExtResource("4_letter")]
-position = Vector2(-284, 968)
+position = Vector2(13, 138)
 letter_id = 4
 letter_count = 3
 
 [node name="Letter7" parent="Collectibles" instance=ExtResource("4_letter")]
-position = Vector2(13, 138)
+position = Vector2(316, -715)
 letter_id = 7
 letter_count = 3
 
 [node name="Letter10" parent="Collectibles" instance=ExtResource("4_letter")]
-position = Vector2(316, -715)
+position = Vector2(-259, -1153)
 letter_id = 10
 letter_count = 3
 
 [node name="Letter13" parent="Collectibles" instance=ExtResource("4_letter")]
-position = Vector2(-259, -1153)
+position = Vector2(337, -1953)
 letter_id = 13
 letter_count = 3
 
@@ -602,6 +602,7 @@ visible = false
 position = Vector2(-2, -4039)
 
 [node name="BananaPeel" parent="." instance=ExtResource("7_cyt5c")]
+z_index = 11
 position = Vector2(-191, -4004)
 
 [node name="FallTarget" parent="." instance=ExtResource("8_falltarget")]

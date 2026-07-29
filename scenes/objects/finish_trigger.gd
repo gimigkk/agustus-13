@@ -11,15 +11,16 @@ extends Area2D
 @export var pop_up_height: float = 180.0
 @export var pause_before_run: float = 0.4
 
-@onready var visual: ColorRect = $Visual
-@onready var label: Label = $Visual/Label
+@onready var visual: Sprite2D = $Visual
 
 var is_triggered: bool = false
+var player_ref: CharacterBody2D = null
+var crate_ref: Sprite2D = null
+
+
 
 func _ready() -> void:
 	if not Engine.is_editor_hint():
-		if visual:
-			visual.hide()
 		body_entered.connect(_on_body_entered)
 
 # Checks letter collection threshold:
@@ -101,11 +102,30 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 		var spin_tween := level_node.create_tween()
 		spin_tween.tween_property(player_visual, "rotation_degrees", 360.0, arc_duration)
 
+	# Create the delivered letter crate instance on landing
+	var crate_delivered: Sprite2D = null
+
 	var landing_delay := level_node.create_tween()
 	landing_delay.tween_interval(arc_duration)
 	landing_delay.tween_callback(func():
 		if is_instance_valid(player):
 			player.global_position.y = player_ground_y
+			# Attach crate to player during walk after bounce & landing
+			var existing_crate = player.get_node_or_null("OutroLetterCrate")
+			if is_instance_valid(existing_crate):
+				existing_crate.queue_free()
+
+			crate_delivered = Sprite2D.new()
+			crate_delivered.name = "OutroLetterCrate"
+			var crate_tex = load("res://assets/objects/crate_with_letters.png") as Texture2D
+			if crate_tex:
+				crate_delivered.texture = crate_tex
+			crate_delivered.scale = Vector2(0.11, 0.11)
+			crate_delivered.position = Vector2(0, -32)
+			player.add_child(crate_delivered)
+			player_ref = player
+			crate_ref = crate_delivered
+
 		if is_instance_valid(player_visual):
 			player_visual.rotation_degrees = 0.0
 			player_visual.scale = Vector2(-1.35, 0.65)
@@ -161,6 +181,16 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 		if is_instance_valid(gf):
 			gf.rotation_degrees = 0.0
 			gf.scale = Vector2(1.0, 1.0)
+
+		# Detach crate from player and place down on summit ground between BF and GF
+		if is_instance_valid(crate_delivered):
+			crate_delivered.reparent(level_node)
+			crate_delivered.global_position = Vector2(right_target_x - 55.0, ground_surface_y - 14.0)
+			crate_delivered.scale = Vector2(0.11, 0.11)
+
+			var crate_pop := level_node.create_tween()
+			crate_pop.tween_property(crate_delivered, "scale", Vector2(0.15, 0.08), 0.08)
+			crate_pop.tween_property(crate_delivered, "scale", Vector2(0.11, 0.11), 0.12).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 		var step_dur := 0.08
 		var num_cycles := 11

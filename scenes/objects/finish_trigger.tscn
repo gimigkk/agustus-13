@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://cn3t3vi1ocl17"]
+[gd_scene load_steps=4 format=3 uid="uid://cn3t3vi1ocl17"]
 
 [ext_resource type="Script" path="res://scenes/objects/finish_trigger.gd" id="1_finish_script"]
+[ext_resource type="Texture2D" path="res://assets/objects/crate_with_letters.png" id="2_crate_letters_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_finish"]
 size = Vector2(240, 80)
@@ -11,30 +12,6 @@ script = ExtResource("1_finish_script")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_finish")
 
-[node name="Visual" type="ColorRect" parent="."]
-custom_minimum_size = Vector2(240, 80)
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -120.0
-offset_top = -40.0
-offset_right = 120.0
-offset_bottom = 40.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.9, 0.75, 0.2, 0.85)
-
-[node name="Label" type="Label" parent="Visual"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.15, 0.1, 0.05, 1)
-theme_override_font_sizes/font_size = 20
-text = "🎂 SUMMIT GOAL 🎂"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="Visual" type="Sprite2D" parent="."]
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("2_crate_letters_tex")

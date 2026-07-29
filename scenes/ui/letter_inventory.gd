@@ -30,6 +30,7 @@ func _populate_grid() -> void:
 	for child in grid_container.get_children():
 		child.queue_free()
 	
+	var mail_icon = load("res://assets/objects/inventory_mail.png") as Texture2D
 	for i in range(1, 22):
 		var is_collected: bool = LetterManager.is_letter_collected(i)
 		var card := Button.new()
@@ -38,6 +39,9 @@ func _populate_grid() -> void:
 		
 		if is_collected:
 			card.text = "Letter #%d" % i
+			if mail_icon:
+				card.icon = mail_icon
+				card.expand_icon = true
 			card.pressed.connect(_on_letter_clicked.bind(i))
 		else:
 			card.text = "Locked"

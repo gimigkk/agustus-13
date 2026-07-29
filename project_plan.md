@@ -1,7 +1,7 @@
 # Project Plan: Birthday Jump (Working Title)
 
 ## 1. Project Overview
-* **Project Name:** Birthday Jump (Working Title)
+* **Project Name:** Well of 21 Letters
 * **Description:** A mobile vertical platformer inspired by "Jump King", designed as a special 21st birthday gift.
 * **Story & Premise:** 
   * **Intro Cutscene:** The player character slips on a banana peel and tumbles deep down into a well shaft, landing at the very bottom of the tower with all 21 birthday letters scattered across the climb.
@@ -31,10 +31,6 @@
 * **Art & Visuals:**
   * **Environment:** Custom hand-painted backgrounds, while still keeping the **Jump King-inspired aesthetic** (atmospheric ruins, dark fantasy, distinct zones). Pipeline: Block out level in Godot -> Export layout to Figma/Photoshop -> Paint the environment -> Re-import as Sprite layers over invisible collision blocks.
   * **Characters:** Hand-drawn "derpy chibi" versions of you and your girlfriend to make it cute, personal, and funny.
-* **Nice-to-Haves:**
-  * Changing backgrounds as the player gets higher (e.g., moving from a forest to the clouds to space).
-  * Personal inside jokes integrated into the environment.
-  * Cute sound effects and a catchy background track.
 * **Out of Scope:**
   * Enemies or combat systems.
   * Multiple save slots, settings screens, or complex UI (keep it strictly to the essentials).
@@ -87,11 +83,3 @@
 - [ ] Block the well if not all letters are collected, make the counter shake as an indicator.
 - [X] Playtest thoroughly to ensure it is fun and not overly frustrating.
 - [ ] Export Android APK. Delivery: Send via WhatsApp (fallback: let her play it directly on my phone).
-
-## 7. Next Steps to Consider
-* **The Letters:** Do the 21 letters spell something out, or are they just numbered items (1 to 21)?
-* **Godot Setup:** Are you ready to initialize the Godot project and start laying down the foundational movement mechanics?
-
-## 8. Performance Considerations
-* **Memory & Rendering:** Modern phones can easily handle a single massive 2D level. Godot automatically uses **viewport culling**, meaning it only uses processing power to render the tiles and art that are currently visible on the screen. 
-* **Optimization Tip:** To keep things smooth, just make sure you don't have hundreds of active enemies or complex moving platforms computing physics way off-screen. Since your game is mostly static platforms and collectibles, it will run incredibly well on mobile!

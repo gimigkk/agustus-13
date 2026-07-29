@@ -60,11 +60,11 @@ func _animate_flying_papers(collect_world_pos: Vector2, new_total: int) -> void:
 		update_counter(new_total)
 		return
 
-	# Calculate screen target position (center/left area of counter button)
+	# Target position: HUD Counter button center-left
 	var target_rect := letter_counter_btn.get_global_rect()
-	var target_pos := target_rect.position + Vector2(30.0, target_rect.size.y * 0.5)
+	var target_pos := target_rect.position + Vector2(36.0, target_rect.size.y * 0.5)
 
-	# Calculate screen start position
+	# Start position: Canvas screen space of collected item
 	var start_pos: Vector2
 	if collect_world_pos != Vector2.ZERO and get_viewport():
 		start_pos = get_viewport().get_canvas_transform() * collect_world_pos
@@ -75,40 +75,56 @@ func _animate_flying_papers(collect_world_pos: Vector2, new_total: int) -> void:
 
 	var start_count: int = current_displayed_count
 	var count_diff: int = max(1, new_total - start_count)
+	var num_flyers: int = mini(3, count_diff) if count_diff > 1 else 1
 
-	# Spawn exactly 3 flying papers
-	for i in range(3):
+	for i in range(num_flyers):
 		var paper := _create_paper_node()
 		control.add_child(paper)
 
-		paper.global_position = start_pos - paper.pivot_offset
-		paper.scale = Vector2(0.3, 0.3)
-
 		var delay := float(i) * 0.08
-		var burst_angle := randf_range(-PI * 0.75, -PI * 0.25)
-		var burst_dist := randf_range(35.0, 65.0)
+
+		# 1. Subtle, clean fan-out burst
+		var base_angle_step := (PI * 0.35) / maxf(1.0, float(num_flyers - 1)) if num_flyers > 1 else 0.0
+		var burst_angle := (-PI * 0.67) + float(i) * base_angle_step + randf_range(-0.08, 0.08)
+		var burst_dist := randf_range(20.0, 35.0)
 		var burst_pos := start_pos + Vector2(cos(burst_angle), sin(burst_angle)) * burst_dist
 
-		# Mid control point for quadratic bezier arc towards top-left counter
-		var mid := (burst_pos + target_pos) * 0.5
-		var arc_offset := Vector2(randf_range(-60.0, -120.0), randf_range(-80.0, -140.0))
-		var control_pt := mid + arc_offset
+		# 2. Gentle 3-lane curve separation towards top-left counter
+		var x_curve_bias: float
+		if num_flyers == 1:
+			x_curve_bias = randf_range(-15.0, 15.0)
+		else:
+			x_curve_bias = lerpf(-35.0, 35.0, float(i) / float(num_flyers - 1)) + randf_range(-10.0, 10.0)
+			
+		var y_arc_height := randf_range(60.0, 90.0)
+		
+		var mid_pos := (burst_pos + target_pos) * 0.5
+		var control_pt := Vector2(
+			mid_pos.x + x_curve_bias,
+			minf(burst_pos.y, target_pos.y) - y_arc_height
+		)
+
+		paper.global_position = start_pos - paper.pivot_offset
+		paper.scale = Vector2(0.2, 0.2)
+		paper.modulate.a = 0.0
+
+		# 3. Gentle paper drift rotation (45 to 110 degrees)
+		var spin_dir := 1.0 if (i % 2 == 0) else -1.0
+		var start_rot := randf_range(-15.0, 15.0)
+		var total_tumble := randf_range(45.0, 110.0) * spin_dir
+		var target_rot := start_rot + total_tumble
 
 		var main_tween := create_tween()
 		main_tween.tween_interval(delay)
 
-		# 1. Burst stage (0.15s)
-		var initial_rot := randf_range(-30.0, 30.0)
-		main_tween.tween_property(paper, "global_position", burst_pos - paper.pivot_offset, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		main_tween.parallel().tween_property(paper, "scale", Vector2(1.25, 1.25), 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		main_tween.parallel().tween_property(paper, "rotation_degrees", initial_rot, 0.15)
+		# Stage 1: Soft pop & burst (0.14s)
+		main_tween.tween_property(paper, "global_position", burst_pos - paper.pivot_offset, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		main_tween.parallel().tween_property(paper, "scale", Vector2(0.75, 0.75), 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		main_tween.parallel().tween_property(paper, "modulate:a", 1.0, 0.10)
+		main_tween.parallel().tween_property(paper, "rotation_degrees", start_rot, 0.14)
 
-		# 2. Bezier Arc Flight stage (0.55s)
-		var fly_dur := 0.55
-		var total_spin := randf_range(360.0, 540.0) * (1.0 if randf() > 0.5 else -1.0)
-		var target_rot := initial_rot + total_spin
-
-		# Animate along quadratic bezier curve using tween_method
+		# Stage 2: Smooth Glide along gentle arc to HUD (0.45s)
+		var fly_dur := 0.45
 		var p_start := burst_pos
 		var p_ctrl := control_pt
 		var p_end := target_pos
@@ -123,63 +139,33 @@ func _animate_flying_papers(collect_world_pos: Vector2, new_total: int) -> void:
 			0.0, 1.0, fly_dur
 		).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 
-		main_tween.parallel().tween_property(paper, "rotation_degrees", target_rot, fly_dur)
-		main_tween.parallel().tween_property(paper, "scale", Vector2(0.6, 0.6), fly_dur).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		main_tween.parallel().tween_property(paper, "rotation_degrees", target_rot, fly_dur).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		main_tween.parallel().tween_property(paper, "scale", Vector2(0.4, 0.4), fly_dur).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
-		# 3. Impact stage at target counter
+		# Stage 3: Soft Impact at counter
 		var paper_index := i
 		main_tween.chain().tween_callback(func():
 			if is_instance_valid(paper):
 				_spawn_landing_sparkle(target_pos)
 				paper.queue_free()
 
-			# Increment counter smoothly on each paper landing
-			var step_count := start_count + int(round(float(count_diff) * float(paper_index + 1) / 3.0))
+			var step_count := start_count + int(round(float(count_diff) * float(paper_index + 1) / float(num_flyers)))
 			step_count = clampi(step_count, 0, new_total)
 			update_counter(step_count)
-
-			# Counter button punch scale bounce
 			_punch_counter_btn()
 		)
 
 func _create_paper_node() -> Control:
-	var paper := Control.new()
-	paper.custom_minimum_size = Vector2(22, 28)
-	paper.size = Vector2(22, 28)
-	paper.pivot_offset = Vector2(11, 14)
+	var paper := TextureRect.new()
+	var mail_tex = load("res://assets/objects/inventory_mail.png") as Texture2D
+	if mail_tex:
+		paper.texture = mail_tex
+	paper.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	paper.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	paper.custom_minimum_size = Vector2(40, 26)
+	paper.size = Vector2(40, 26)
+	paper.pivot_offset = Vector2(20, 13)
 	paper.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	# Shadow
-	var shadow := ColorRect.new()
-	shadow.color = Color(0, 0, 0, 0.3)
-	shadow.size = Vector2(22, 28)
-	shadow.position = Vector2(2, 2)
-	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	paper.add_child(shadow)
-
-	# Main Paper Body
-	var body := ColorRect.new()
-	body.color = Color(0.98, 0.96, 0.90) # Warm paper cream
-	body.size = Vector2(22, 28)
-	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	paper.add_child(body)
-
-	# Paper Red Top Stripe
-	var top_stripe := ColorRect.new()
-	top_stripe.color = Color(0.85, 0.3, 0.3)
-	top_stripe.size = Vector2(22, 4)
-	top_stripe.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	paper.add_child(top_stripe)
-
-	# Cute Letter Fold / Icon Label
-	var label := Label.new()
-	label.text = "✉"
-	label.add_theme_font_size_override("font_size", 13)
-	label.add_theme_color_override("font_color", Color(0.2, 0.2, 0.2))
-	label.position = Vector2(3, 4)
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	paper.add_child(label)
-
 	return paper
 
 func _punch_counter_btn() -> void:

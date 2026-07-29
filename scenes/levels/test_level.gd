@@ -14,6 +14,7 @@ var intro_manager: Node = null
 # 2. Existing Save -> restore Player position and show in-game menu.
 # 3. Fresh Boot -> play Stage 1 summit intro, then show boot main menu.
 func _ready() -> void:
+	_sort_and_assign_letter_ids()
 	var force_full_intro: bool = false
 	if SaveManager.force_intro_on_launch:
 		force_full_intro = true
@@ -35,6 +36,28 @@ func _ready() -> void:
 		call_deferred("_instantiate_main_menu", true)
 	else:
 		call_deferred("play_boot_intro_stage_1")
+
+## Dynamically sorts all Letter objects in Collectibles by Y position (bottom to top) and assigns sequential letter_ids.
+func _sort_and_assign_letter_ids() -> void:
+	var collectibles_node = get_node_or_null("Collectibles")
+	if not is_instance_valid(collectibles_node):
+		return
+		
+	var letter_nodes: Array = []
+	for child in collectibles_node.get_children():
+		if "letter_id" in child:
+			letter_nodes.append(child)
+			
+	# Sort descending by Y position (largest Y = bottom of screen/level comes first)
+	letter_nodes.sort_custom(func(a, b):
+		return a.global_position.y > b.global_position.y
+	)
+	
+	var current_id: int = 1
+	for node in letter_nodes:
+		node.letter_id = current_id
+		var count: int = node.letter_count if "letter_count" in node else 1
+		current_id += count
 
 # Triggers Stage 1 cutscene -> on completion opens Boot Main Menu.
 func play_boot_intro_stage_1() -> void:

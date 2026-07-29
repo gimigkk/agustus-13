@@ -9,24 +9,26 @@ extends Area2D
 @export var letter_id: int = 1:
 	set(value):
 		letter_id = max(1, value)
-		_update_label()
+		_update_visual()
 
 @export var letter_count: int = 1:
 	set(value):
 		letter_count = max(1, value)
-		_update_label()
+		_update_visual()
 
 var base_y: float = 0.0
 var anim_time: float = 0.0
 var is_collected: bool = false
 
-@onready var visual: ColorRect = $Visual
-@onready var label: Label = $Visual/Label
+var single_tex: Texture2D = preload("res://assets/objects/single_letter.png")
+var stack_tex: Texture2D = preload("res://assets/objects/letter_stack.png")
+
+@onready var visual: Sprite2D = $Visual
 
 func _ready() -> void:
 	base_y = position.y
 	_auto_infer_id_from_name()
-	_update_label()
+	_update_visual()
 	
 	if not Engine.is_editor_hint():
 		body_entered.connect(_on_body_entered)
@@ -49,13 +51,12 @@ func _process(delta: float) -> void:
 		anim_time += delta
 		position.y = base_y + sin(anim_time * 3.0) * 6.0
 
-func _update_label() -> void:
-	if label:
+func _update_visual() -> void:
+	if visual:
 		if letter_count > 1:
-			var end_id: int = mini(21, letter_id + letter_count - 1)
-			label.text = "%d..%d" % [letter_id, end_id]
+			visual.texture = stack_tex
 		else:
-			label.text = str(letter_id)
+			visual.texture = single_tex
 
 func _on_body_entered(body: Node2D) -> void:
 	if is_collected:

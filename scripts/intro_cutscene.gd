@@ -28,7 +28,7 @@ var is_playing: bool = false
 # Persistent state variables between Stage 1 and Stage 2
 var _player: CharacterBody2D
 var _gf: TextureRect
-var _box: ColorRect
+var _box: Node2D
 var _camera: Camera2D
 var _banana_prop: Node2D
 var _level_node: Node2D
@@ -41,6 +41,8 @@ var _player_ground_center_y: float
 var _bf_stop1_x: float = -260.0
 var _gf_stop1_x: float = 200.0
 var _gf_final_x: float = 140.0
+
+
 
 # Stage 1: Initializes player & girlfriend offscreen, waddles to summit center, disables collision/physics.
 func play_intro_stage_1(level_node: Node2D) -> void:
@@ -131,17 +133,15 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 	if is_instance_valid(existing_box):
 		existing_box.queue_free()
 
-	_box = ColorRect.new()
-	_box.name = "LetterBox"
-	_box.size = Vector2(28, 20)
-	_box.color = Color(0.85, 0.6, 0.3, 1.0)
-	_box.position = Vector2(-14, -50)
-	_player.add_child(_box)
-	var box_label := Label.new()
-	box_label.text = "🎁"
-	box_label.add_theme_font_size_override("font_size", 14)
-	box_label.position = Vector2(4, 0)
-	_box.add_child(box_label)
+	var crate_sprite := Sprite2D.new()
+	crate_sprite.name = "LetterBox"
+	var crate_tex = load("res://assets/objects/crate_with_letters.png") as Texture2D
+	if crate_tex:
+		crate_sprite.texture = crate_tex
+	crate_sprite.scale = Vector2(0.11, 0.11)
+	crate_sprite.position = Vector2(0, -32)
+	_player.add_child(crate_sprite)
+	_box = crate_sprite as Node2D
 
 	var tween := level_node.create_tween().set_parallel(true)
 	
@@ -180,9 +180,16 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 		var bf_crouch := level_node.create_tween()
 		bf_crouch.tween_interval(1.20)
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.25, 0.65), 0.10)
+		if is_instance_valid(_box): bf_crouch.parallel().tween_property(_box, "position:y", -9.25, 0.10)
+		
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.0, 1.0), 0.10)
+		if is_instance_valid(_box): bf_crouch.parallel().tween_property(_box, "position:y", -32.0, 0.10)
+		
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.25, 0.65), 0.10)
+		if is_instance_valid(_box): bf_crouch.parallel().tween_property(_box, "position:y", -9.25, 0.10)
+		
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.0, 1.0), 0.10)
+		if is_instance_valid(_box): bf_crouch.parallel().tween_property(_box, "position:y", -32.0, 0.10)
 
 	var completion_time := 1.70
 	tween.tween_callback(func():
@@ -215,9 +222,16 @@ func play_intro_stage_2() -> void:
 		var bf_crouch := _level_node.create_tween()
 		bf_crouch.tween_interval(0.60)
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.25, 0.65), 0.10)
+		if is_instance_valid(_box): bf_crouch.parallel().tween_property(_box, "position:y", -9.25, 0.10)
+		
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.0, 1.0), 0.10)
+		if is_instance_valid(_box): bf_crouch.parallel().tween_property(_box, "position:y", -32.0, 0.10)
+		
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.25, 0.65), 0.10)
+		if is_instance_valid(_box): bf_crouch.parallel().tween_property(_box, "position:y", -9.25, 0.10)
+		
 		bf_crouch.tween_property(_player_visual, "scale", Vector2(-1.0, 1.0), 0.10)
+		if is_instance_valid(_box): bf_crouch.parallel().tween_property(_box, "position:y", -32.0, 0.10)
 
 	if is_instance_valid(_gf):
 		var gf_walk2 := _level_node.create_tween()
@@ -247,29 +261,6 @@ func play_intro_stage_2() -> void:
 		tween.tween_property(_banana_prop, "rotation_degrees", -1080.0, 0.8).set_delay(slip_time)
 		tween.tween_property(_banana_prop, "modulate:a", 0.0, 0.3).set_delay(slip_time + 0.5)
 
-	if is_instance_valid(_box):
-		tween.tween_property(_box, "position:y", -100.0, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).set_delay(slip_time)
-		tween.tween_property(_box, "modulate:a", 0.0, 0.2).set_delay(slip_time + 0.2)
-
-	tween.tween_callback(func():
-		if not is_instance_valid(_level_node) or not is_instance_valid(_player):
-			return
-		for i in range(12):
-			var lp := Label.new()
-			lp.text = "✉️"
-			lp.add_theme_font_size_override("font_size", 14)
-			lp.global_position = _player.global_position + Vector2(randf_range(-20, 20), -50)
-			_level_node.add_child(lp)
-			var lt := _level_node.create_tween().set_parallel(true)
-			var target_offset := Vector2(randf_range(-120, 120), randf_range(-180, -30))
-			lt.tween_property(lp, "global_position", lp.global_position + target_offset, 0.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			lt.tween_property(lp, "modulate:a", 0.0, 0.5).set_delay(0.4)
-			lt.chain().tween_callback(func():
-				if is_instance_valid(lp):
-					lp.queue_free()
-			)
-	).set_delay(slip_time)
-
 	var arc_start: float = slip_time
 	var arc_duration: float = 1.0
 	var half_arc: float = arc_duration * 0.5
@@ -281,6 +272,13 @@ func play_intro_stage_2() -> void:
 
 	if is_instance_valid(_player_visual):
 		tween.tween_property(_player_visual, "rotation_degrees", -360.0, arc_duration).set_delay(arc_start)
+	if is_instance_valid(_box):
+		var base_offset := Vector2(0, -32)
+		tween.tween_method(func(rot: float):
+			if is_instance_valid(_box):
+				_box.rotation_degrees = rot
+				_box.position = base_offset.rotated(deg_to_rad(rot))
+		, 0.0, -360.0, arc_duration).set_delay(arc_start)
 
 	var fall_start: float = arc_start + arc_duration
 	var fall_duration: float = 3.0
@@ -290,6 +288,45 @@ func play_intro_stage_2() -> void:
 
 	if is_instance_valid(_player_visual):
 		tween.tween_property(_player_visual, "rotation_degrees", -1800.0, fall_duration).set_delay(fall_start)
+	if is_instance_valid(_box):
+		tween.tween_callback(func():
+			if is_instance_valid(_box):
+				_box.visible = false
+		).set_delay(fall_start)
+	var letter_targets: Array[Node2D] = []
+	if is_instance_valid(_level_node):
+		var coll = _level_node.get_node_or_null("Collectibles")
+		if coll:
+			var l_nodes: Array = []
+			for c in coll.get_children():
+				if "letter_id" in c:
+					l_nodes.append(c)
+					if c is Node2D:
+						c.visible = false
+			l_nodes.sort_custom(func(a, b): return a.global_position.y < b.global_position.y)
+			for n in l_nodes:
+				letter_targets.append(n)
+				
+	var num_letters = letter_targets.size()
+	if num_letters > 0:
+		var emit_start_delay: float = 0.6
+		var emit_start_time: float = fall_start + emit_start_delay
+		var emit_duration: float = (fall_duration * 0.85) - emit_start_delay
+		var emit_interval: float = emit_duration / float(num_letters)
+		var drop_distance: float = player_bottom_landing_y - peak_y
+		for i in range(num_letters):
+			var t_delay: float = emit_start_time + (float(i) * emit_interval)
+			var target_node: Node2D = letter_targets[i]
+			
+			var current_fall_time: float = t_delay - fall_start
+			var vy: float = 2.0 * drop_distance * current_fall_time / (fall_duration * fall_duration)
+			var vx_mag: float = randf_range(500.0, 900.0)
+			var vx: float = vx_mag if randf() > 0.5 else -vx_mag
+			var init_vel := Vector2(vx, vy)
+			
+			var emit_cb = func(tn: Node2D, iv: Vector2):
+				_emit_single_letter(tn, iv)
+			tween.parallel().tween_callback(emit_cb.bind(target_node, init_vel)).set_delay(t_delay)
 
 	tween.tween_callback(func():
 		if not is_instance_valid(_level_node) or not is_instance_valid(_player):
@@ -355,3 +392,38 @@ func _restore_gameplay_state() -> void:
 		_hud.visible = true
 	if is_instance_valid(_touch_ui):
 		_touch_ui.visible = true
+
+func _emit_single_letter(target_node: Node2D, initial_vel: Vector2) -> void:
+	if not is_instance_valid(_level_node) or not is_instance_valid(_box) or not is_instance_valid(target_node):
+		return
+	var target_pos: Vector2 = target_node.global_position
+	
+	var paper := Sprite2D.new()
+	var paper_tex = load("res://assets/objects/single_letter.png") as Texture2D
+	if paper_tex:
+		paper.texture = paper_tex
+	paper.scale = Vector2(0.15, 0.15)
+	paper.z_index = 10
+	paper.global_position = _box.global_position
+	_level_node.add_child(paper)
+	
+	var tw := _level_node.create_tween().set_parallel(true)
+	var dur := 1.0
+	var p0 := paper.global_position
+	var p2 := target_pos
+	var p1 := p0 + initial_vel * (dur / 2.0)
+	
+	var move_cb = func(t: float, p_node: Node2D, p_0: Vector2, p_1: Vector2, p_2: Vector2):
+		if is_instance_valid(p_node):
+			var inv = 1.0 - t
+			p_node.global_position = (inv * inv * p_0) + (2.0 * inv * t * p_1) + (t * t * p_2)
+			
+	tw.tween_method(move_cb.bind(paper, p0, p1, p2), 0.0, 1.0, dur).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	
+	tw.tween_property(paper, "rotation_degrees", randf_range(360.0, 1080.0), dur).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.chain().tween_callback(func():
+		if is_instance_valid(target_node):
+			target_node.visible = true
+		if is_instance_valid(paper):
+			paper.queue_free()
+	)

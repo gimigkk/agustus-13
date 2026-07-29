@@ -13,6 +13,7 @@ config_version=5
 config/name="Birthday Jump"
 run/main_scene="res://scenes/levels/test_level.tscn"
 config/features=PackedStringArray("4.4", "Mobile")
+run/max_fps=60
 config/icon="res://icon.svg"
 
 [autoload]
@@ -58,7 +59,3 @@ pointing/emulate_touch_from_mouse=true
 2d/snap/snap_2d_transforms_to_pixel=true
 2d/snap/snap_2d_vertices_to_pixel=true
 vram_compression/import_etc2_astc=true
-
-[application]
-run/max_fps=60
-
