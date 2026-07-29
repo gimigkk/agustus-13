@@ -17,8 +17,7 @@ extends Area2D
 var is_triggered: bool = false
 var player_ref: CharacterBody2D = null
 var crate_ref: Sprite2D = null
-
-
+var _prompt_cooldown_timer: float = 0.0
 
 func _ready() -> void:
 	if not Engine.is_editor_hint():
@@ -26,6 +25,10 @@ func _ready() -> void:
 		if LetterManager:
 			LetterManager.letter_collected.connect(func(_id, _msg, _total, _pos): _update_barrier_state())
 		_update_barrier_state()
+
+func _physics_process(delta: float) -> void:
+	if _prompt_cooldown_timer > 0.0:
+		_prompt_cooldown_timer -= delta
 
 func _update_barrier_state() -> void:
 	if not LetterManager:
@@ -53,8 +56,10 @@ func _on_body_entered(body: Node2D) -> void:
 		var player = body as CharacterBody2D
 		if is_instance_valid(player):
 			var bounce_dir: float = -1.0 if player.global_position.x < global_position.x else 1.0
-			player.velocity = Vector2(bounce_dir * 220.0, -260.0)
-		_show_incomplete_prompt(collected, required_letters)
+			player.velocity = Vector2(bounce_dir * 240.0, -280.0)
+		if _prompt_cooldown_timer <= 0.0:
+			_prompt_cooldown_timer = 1.2
+			_show_incomplete_prompt(collected, required_letters)
 
 func _play_finish_sequence(player: CharacterBody2D) -> void:
 	var level_node = get_tree().current_scene

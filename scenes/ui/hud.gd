@@ -60,24 +60,25 @@ func shake_counter() -> void:
 	if not target_node:
 		target_node = letter_counter_btn
 		
-	target_node.pivot_offset = target_node.size * 0.5
-	var orig_pos := target_node.position
+	target_node.pivot_offset = Vector2(40.0, target_node.size.y * 0.5)
 	var orig_color := target_node.modulate
 	
-	# Flash reddish highlight
-	target_node.modulate = Color(1.0, 0.45, 0.45, 1.0)
+	# Flash red tint indicator
+	var flash_tween := create_tween()
+	flash_tween.tween_property(target_node, "modulate", Color(1.0, 0.3, 0.3, 1.0), 0.06)
+	flash_tween.tween_property(target_node, "modulate", orig_color, 0.40)
 	
+	# Vigorously shake rotation & scale
 	var shake_tween := create_tween()
-	var num_shakes := 10
+	var num_shakes := 8
 	for i in range(num_shakes):
-		var offset := orig_pos + Vector2(randf_range(-14.0, 14.0), randf_range(-6.0, 6.0))
-		var rot := randf_range(-8.0, 8.0)
-		shake_tween.tween_property(target_node, "position", offset, 0.03)
-		shake_tween.parallel().tween_property(target_node, "rotation_degrees", rot, 0.03)
+		var rot := 14.0 if (i % 2 == 0) else -14.0
+		var sc := Vector2(1.22, 1.22) if (i % 2 == 0) else Vector2(0.85, 0.85)
+		shake_tween.tween_property(target_node, "rotation_degrees", rot, 0.04).set_trans(Tween.TRANS_QUAD)
+		shake_tween.parallel().tween_property(target_node, "scale", sc, 0.04)
 	
-	shake_tween.tween_property(target_node, "position", orig_pos, 0.06)
-	shake_tween.parallel().tween_property(target_node, "rotation_degrees", 0.0, 0.06)
-	shake_tween.parallel().tween_property(target_node, "modulate", orig_color, 0.15)
+	shake_tween.chain().tween_property(target_node, "rotation_degrees", 0.0, 0.08).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	shake_tween.parallel().tween_property(target_node, "scale", Vector2(1.0, 1.0), 0.08)
 
 ## Callback when a letter is collected in-game.
 func _on_letter_collected(_id: int, _msg: String, total: int, collect_pos: Vector2 = Vector2.ZERO) -> void:
