@@ -223,9 +223,16 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 	)
 
 func _trigger_victory() -> void:
-	var hud = get_tree().current_scene.get_node_or_null("HUD")
-	if hud and hud.has_method("show_summit_celebration"):
-		hud.show_summit_celebration()
+	var level_node = get_tree().current_scene
+	if not level_node: return
+	
+	SaveManager.current_save_data["has_finished_game"] = true
+	SaveManager.save_current_state()
+	var menu_scene = load("res://scenes/ui/main_menu.tscn")
+	if menu_scene:
+		var menu = menu_scene.instantiate()
+		menu.is_save_menu = true
+		level_node.add_child(menu)
 
 func _show_incomplete_prompt(collected: int, required: int) -> void:
 	var hud = get_tree().current_scene.get_node_or_null("HUD")

@@ -11,16 +11,29 @@ const TOTAL_LETTERS: int = 21
 
 var messages: Dictionary = {}
 var collected_letter_ids: Array = []
+var global_letter_ids: Array = []
 
 func _ready() -> void:
 	load_messages()
-	if SaveManager.current_save_data.has("collected_letters"):
-		var raw_list: Array = SaveManager.current_save_data["collected_letters"]
+	SaveManager.save_loaded.connect(_on_save_loaded)
+	_on_save_loaded(SaveManager.current_save_data)
+
+func _on_save_loaded(data: Dictionary) -> void:
+	if data.has("collected_letters"):
+		var raw_list: Array = data["collected_letters"]
 		collected_letter_ids.clear()
 		for item in raw_list:
 			var int_id := int(item)
 			if int_id >= 1 and int_id <= TOTAL_LETTERS and not collected_letter_ids.has(int_id):
 				collected_letter_ids.append(int_id)
+				
+	if data.has("global_collected_letters"):
+		var raw_global: Array = data["global_collected_letters"]
+		global_letter_ids.clear()
+		for item in raw_global:
+			var int_id := int(item)
+			if int_id >= 1 and int_id <= TOTAL_LETTERS and not global_letter_ids.has(int_id):
+				global_letter_ids.append(int_id)
 
 ## Parses messages from the letters JSON data configuration.
 func load_messages() -> void:
@@ -56,6 +69,10 @@ func get_letter_message(letter_id: int) -> String:
 func is_letter_collected(letter_id: int) -> bool:
 	return collected_letter_ids.has(int(letter_id))
 
+## Returns true if the specified letter ID has been collected globally.
+func is_global_letter_collected(letter_id: int) -> bool:
+	return global_letter_ids.has(int(letter_id))
+
 ## Returns total count of unique valid letters collected so far.
 func get_collected_count() -> int:
 	var unique_ids: Array = []
@@ -85,13 +102,15 @@ func collect_letter_bundle(start_id: int, count: int, player_pos: Vector2 = Vect
 		var curr_id := start_id + i
 		if curr_id >= 1 and curr_id <= TOTAL_LETTERS and not is_letter_collected(curr_id):
 			collected_letter_ids.append(curr_id)
+			if not is_global_letter_collected(curr_id):
+				global_letter_ids.append(curr_id)
 			last_id = curr_id
 			last_msg = get_letter_message(curr_id)
 			newly_collected = true
 			
 	if newly_collected:
 		var total := get_collected_count()
-		SaveManager.save_game(player_pos, collected_letter_ids)
+		SaveManager.save_game(player_pos, collected_letter_ids, global_letter_ids)
 		var final_collect_pos := collect_world_pos if collect_world_pos != Vector2.ZERO else player_pos
 		letter_collected.emit(last_id, last_msg, total, final_collect_pos)
 		return true

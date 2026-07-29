@@ -4,7 +4,7 @@
 
 [node name="LetterInventory" type="CanvasLayer"]
 process_mode = 3
-layer = 25
+layer = 110
 script = ExtResource("1_inv_script")
 
 [node name="Control" type="Control" parent="."]

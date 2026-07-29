@@ -13,7 +13,7 @@ func _ready() -> void:
 
 ## Opens the inventory grid overlay and pauses gameplay.
 func open_inventory() -> void:
-	var count: int = LetterManager.collected_letter_ids.size()
+	var count: int = LetterManager.global_letter_ids.size()
 	title_label.text = "Letters (%d / 21)" % count
 	
 	_populate_grid()
@@ -32,7 +32,7 @@ func _populate_grid() -> void:
 	
 	var mail_icon = load("res://assets/objects/inventory_mail.png") as Texture2D
 	for i in range(1, 22):
-		var is_collected: bool = LetterManager.is_letter_collected(i)
+		var is_collected: bool = LetterManager.is_global_letter_collected(i)
 		var card := Button.new()
 		card.custom_minimum_size = Vector2(175, 95)
 		card.add_theme_font_size_override("font_size", 18)

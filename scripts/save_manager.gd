@@ -14,7 +14,9 @@ var current_save_data: Dictionary = {
 	"player_pos_x": 0.0,
 	"player_pos_y": 1180.0,
 	"collected_letters": [],
-	"has_save": false
+	"global_collected_letters": [],
+	"has_save": false,
+	"has_finished_game": false
 }
 
 func _ready() -> void:
@@ -39,15 +41,17 @@ func save_current_state() -> bool:
 	if not player.is_physics_processing():
 		return false
 		
-	return save_game(player.global_position, LetterManager.collected_letter_ids)
+	return save_game(player.global_position, LetterManager.collected_letter_ids, LetterManager.global_letter_ids)
 
-## Writes player position and letter IDs to user save JSON file.
-func save_game(player_pos: Vector2, collected_letters: Array) -> bool:
+func save_game(player_pos: Vector2, collected_letters: Array, global_letters: Array) -> bool:
+	var finished = current_save_data.get("has_finished_game", false)
 	var data := {
 		"player_pos_x": player_pos.x,
 		"player_pos_y": player_pos.y,
 		"collected_letters": collected_letters,
+		"global_collected_letters": global_letters,
 		"has_save": true,
+		"has_finished_game": finished,
 		"timestamp": Time.get_unix_time_from_system()
 	}
 	
@@ -89,12 +93,40 @@ func load_game() -> Dictionary:
 	return current_save_data
 
 func clear_save() -> void:
+	var global_letters = current_save_data.get("global_collected_letters", [])
+	var finished_game = current_save_data.get("has_finished_game", false)
+	
+	current_save_data = {
+		"player_pos_x": 0.0,
+		"player_pos_y": 1180.0,
+		"collected_letters": [],
+		"global_collected_letters": global_letters,
+		"has_save": false,
+		"has_finished_game": finished_game
+	}
+	force_intro_on_launch = true
+	
+	var data := current_save_data.duplicate()
+	data["timestamp"] = Time.get_unix_time_from_system()
+	
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(data, "\t"))
+		file.close()
+
+func clear_all_save_data() -> void:
 	if FileAccess.file_exists(SAVE_PATH):
 		DirAccess.remove_absolute(SAVE_PATH)
 	current_save_data = {
 		"player_pos_x": 0.0,
 		"player_pos_y": 1180.0,
 		"collected_letters": [],
-		"has_save": false
+		"global_collected_letters": [],
+		"has_save": false,
+		"has_finished_game": false
 	}
 	force_intro_on_launch = true
+	if LetterManager:
+		LetterManager.collected_letter_ids.clear()
+		if "global_letter_ids" in LetterManager:
+			LetterManager.global_letter_ids.clear()

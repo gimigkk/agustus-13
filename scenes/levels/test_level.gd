@@ -92,8 +92,8 @@ func _setup_intro_manager() -> void:
 ## Spawns the main menu overlay configured for boot or existing save resumption.
 func _instantiate_main_menu(is_save_boot: bool = false) -> void:
 	var hud = get_node_or_null("HUD")
-	if hud:
-		hud.visible = false
+	if hud and hud.has_node("Control"):
+		hud.get_node("Control").visible = false
 	var touch = get_node_or_null("TouchControls")
 	if touch:
 		touch.visible = false
@@ -134,4 +134,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_F3:
 			SaveManager.clear_save()
 			SaveManager.force_intro_on_launch = false
+			LetterManager.reset_progress()
+			get_tree().reload_current_scene()
+		elif event.keycode == KEY_F4:
+			SaveManager.clear_all_save_data()
 			get_tree().reload_current_scene()

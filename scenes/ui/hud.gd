@@ -37,11 +37,7 @@ func update_counter(count: int) -> void:
 	current_displayed_count = safe_count
 	letter_counter_btn.text = "%d / %d Letters" % [safe_count, total_available]
 
-## Instantiates and presents the summit victory celebration overlay.
-func show_summit_celebration() -> void:
-	var celeb_scene = load("res://scenes/ui/summit_celebration.tscn")
-	if celeb_scene:
-		add_child(celeb_scene.instantiate())
+
 
 ## Displays a prompt informing the player how many letters remain for the full ending.
 func show_incomplete_prompt(collected: int, required: int) -> void:
@@ -224,4 +220,4 @@ func _on_debug_end_pressed() -> void:
 		player.global_position = finish_trigger.global_position
 		finish_trigger._play_finish_sequence(player)
 	else:
-		show_summit_celebration()
+		_on_menu_pressed()

@@ -4,7 +4,7 @@
 
 [node name="LetterPopup" type="CanvasLayer"]
 process_mode = 3
-layer = 30
+layer = 120
 script = ExtResource("1_popup_script")
 
 [node name="Control" type="Control" parent="."]

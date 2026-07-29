@@ -9,6 +9,7 @@ signal new_game_started
 signal continue_started
 
 @onready var btn_new_game: UiverseButton = $ButtonContainer/BtnNewGame
+@onready var btn_read_letters: UiverseButton = $ButtonContainer/BtnReadLetters
 @onready var btn_continue: UiverseButton = $ButtonContainer/BtnContinue
 
 # Configuration flags set by level controller:
@@ -25,21 +26,23 @@ func _ready() -> void:
 	var is_in_game: bool = not is_boot_menu
 	
 	btn_continue.disabled = not (has_save or is_in_game)
+	btn_read_letters.visible = SaveManager.current_save_data.get("has_finished_game", false)
+	
 	btn_new_game.pressed.connect(_on_new_game_pressed)
+	btn_read_letters.pressed.connect(_on_read_letters_pressed)
 	btn_continue.pressed.connect(_on_continue_pressed)
 
 func _on_tree_exiting() -> void:
 	if not is_boot_menu:
 		_set_gameplay_ui_visible(true)
 
-# Requires root scene (current_scene) to locate "HUD" and "TouchControls" nodes.
 func _set_gameplay_ui_visible(p_visible: bool) -> void:
 	var current = get_tree().current_scene if get_tree() else null
 	if not current:
 		return
 	var hud = current.get_node_or_null("HUD")
-	if hud:
-		hud.visible = p_visible
+	if hud and hud.has_node("Control"):
+		hud.get_node("Control").visible = p_visible
 	var touch = current.get_node_or_null("TouchControls")
 	if touch:
 		touch.visible = p_visible
@@ -68,3 +71,10 @@ func _on_continue_pressed() -> void:
 		SaveManager.load_game()
 	continue_started.emit()
 	queue_free()
+
+func _on_read_letters_pressed() -> void:
+	var current = get_tree().current_scene if get_tree() else null
+	if not current: return
+	var hud = current.get_node_or_null("HUD")
+	if hud and "letter_inventory" in hud and hud.letter_inventory:
+		hud.letter_inventory.open_inventory()
