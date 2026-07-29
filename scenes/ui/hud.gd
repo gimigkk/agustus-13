@@ -43,42 +43,48 @@ func update_counter(count: int) -> void:
 
 
 
-## Displays a prompt informing the player how many letters remain for the full ending and shakes counter.
-func show_incomplete_prompt(collected: int, required: int) -> void:
-	shake_counter()
-	var popup_scene = load("res://scenes/ui/letter_popup.tscn")
-	if popup_scene:
-		var popup = popup_scene.instantiate()
-		add_child(popup)
-		popup.display_message("Summit Reached!", "You made it to the top! But you still need to collect all %d letters to unlock the birthday surprise! (%d/%d collected)" % [required, collected, required])
 
-## Shakes the letter counter button as a visual indicator for incomplete letter requirement.
+
+## Shakes/punches the letter counter button with a red flash as visual feedback for blocked summit entry.
 func shake_counter() -> void:
 	if not letter_counter_btn:
 		return
 	var target_node: Control = letter_counter_btn.get_node_or_null("Content") as Control
 	if not target_node:
 		target_node = letter_counter_btn
-		
-	target_node.pivot_offset = Vector2(40.0, target_node.size.y * 0.5)
+
+	var mail_icon: Control = target_node.get_node_or_null("MailIcon") as Control
 	var orig_color := target_node.modulate
-	
-	# Flash red tint indicator
+
+	# Center pivot over icon area
+	target_node.pivot_offset = Vector2(28.0, target_node.size.y * 0.5)
+
+	# Red tint flash animation
 	var flash_tween := create_tween()
-	flash_tween.tween_property(target_node, "modulate", Color(1.0, 0.3, 0.3, 1.0), 0.06)
-	flash_tween.tween_property(target_node, "modulate", orig_color, 0.40)
-	
-	# Vigorously shake rotation & scale
-	var shake_tween := create_tween()
-	var num_shakes := 8
-	for i in range(num_shakes):
-		var rot := 14.0 if (i % 2 == 0) else -14.0
-		var sc := Vector2(1.22, 1.22) if (i % 2 == 0) else Vector2(0.85, 0.85)
-		shake_tween.tween_property(target_node, "rotation_degrees", rot, 0.04).set_trans(Tween.TRANS_QUAD)
-		shake_tween.parallel().tween_property(target_node, "scale", sc, 0.04)
-	
-	shake_tween.chain().tween_property(target_node, "rotation_degrees", 0.0, 0.08).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-	shake_tween.parallel().tween_property(target_node, "scale", Vector2(1.0, 1.0), 0.08)
+	flash_tween.tween_property(target_node, "modulate", Color(1.0, 0.3, 0.3, 1.0), 0.07)
+	flash_tween.tween_property(target_node, "modulate", orig_color, 0.35)
+
+	# Step 1: Explosive impact punch (scale + tilt)
+	var t1 := create_tween().set_parallel(true)
+	t1.tween_property(target_node, "scale", Vector2(1.32, 1.25), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t1.tween_property(target_node, "rotation_degrees", -7.0, 0.07).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if is_instance_valid(mail_icon):
+		mail_icon.pivot_offset = mail_icon.size * 0.5
+		t1.tween_property(mail_icon, "scale", Vector2(1.35, 1.35), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+	# Step 2: Elastic recoil & counter-tilt
+	var t2 := create_tween().set_parallel(true)
+	t2.tween_property(target_node, "scale", Vector2(0.95, 0.95), 0.10).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	t2.tween_property(target_node, "rotation_degrees", 4.0, 0.10).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	if is_instance_valid(mail_icon):
+		t2.tween_property(mail_icon, "scale", Vector2(0.9, 0.9), 0.10)
+
+	# Step 3: Elastic bounce settlement
+	var t3 := create_tween().set_parallel(true)
+	t3.tween_property(target_node, "scale", Vector2(1.0, 1.0), 0.14).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	t3.tween_property(target_node, "rotation_degrees", 0.0, 0.14).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	if is_instance_valid(mail_icon):
+		t3.tween_property(mail_icon, "scale", Vector2(1.0, 1.0), 0.14).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 ## Callback when a letter is collected in-game.
 func _on_letter_collected(_id: int, _msg: String, total: int, collect_pos: Vector2 = Vector2.ZERO) -> void:

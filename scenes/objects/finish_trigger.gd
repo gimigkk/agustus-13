@@ -59,7 +59,9 @@ func _on_body_entered(body: Node2D) -> void:
 			player.velocity = Vector2(bounce_dir * 240.0, -280.0)
 		if _prompt_cooldown_timer <= 0.0:
 			_prompt_cooldown_timer = 1.2
-			_show_incomplete_prompt(collected, required_letters)
+			var hud = get_tree().current_scene.get_node_or_null("HUD")
+			if hud and hud.has_method("shake_counter"):
+				hud.shake_counter()
 
 func _play_finish_sequence(player: CharacterBody2D) -> void:
 	var level_node = get_tree().current_scene
@@ -255,9 +257,6 @@ func _trigger_victory() -> void:
 		menu.is_save_menu = true
 		level_node.add_child(menu)
 
-func _show_incomplete_prompt(collected: int, required: int) -> void:
-	var hud = get_tree().current_scene.get_node_or_null("HUD")
-	if hud and hud.has_method("show_incomplete_prompt"):
-		hud.show_incomplete_prompt(collected, required)
+
 
 
