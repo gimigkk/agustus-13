@@ -23,6 +23,11 @@ func _ready() -> void:
 	if menu_btn.has_signal("pressed"):
 		menu_btn.pressed.connect(_on_menu_pressed)
 
+## Toggles the visibility of the top HUD bar (counter + menu button).
+func set_top_bar_visible(p_visible: bool) -> void:
+	if is_instance_valid(control):
+		control.visible = p_visible
+
 # Developer hotkeys for instant summit completion (F1) and intro cutscene test (F2)
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
@@ -190,11 +195,13 @@ func _animate_flying_papers(collect_world_pos: Vector2, new_total: int) -> void:
 			_punch_counter_btn()
 		)
 
+const MAIL_TEX = preload("res://assets/objects/inventory_mail.png")
+const MAIN_MENU_SCENE = preload("res://scenes/ui/main_menu.tscn")
+
 func _create_paper_node() -> Control:
 	var paper := TextureRect.new()
-	var mail_tex = load("res://assets/objects/inventory_mail.png") as Texture2D
-	if mail_tex:
-		paper.texture = mail_tex
+	if MAIL_TEX:
+		paper.texture = MAIL_TEX
 	paper.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	paper.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	paper.custom_minimum_size = Vector2(40, 26)
@@ -269,9 +276,8 @@ func _on_menu_pressed() -> void:
 	var existing = get_tree().current_scene.get_node_or_null("MainMenu")
 	if not is_instance_valid(existing):
 		SaveManager.save_current_state()
-		var menu_scene = load("res://scenes/ui/main_menu.tscn")
-		if menu_scene:
-			get_tree().current_scene.add_child(menu_scene.instantiate())
+		if MAIN_MENU_SCENE:
+			get_tree().current_scene.add_child(MAIN_MENU_SCENE.instantiate())
 
 func _on_debug_intro_pressed() -> void:
 	var current = get_tree().current_scene

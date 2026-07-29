@@ -96,7 +96,10 @@ func _setup_nodes() -> void:
 		top_button = Button.new()
 		top_button.name = "TopButton"
 		top_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		top_button.mouse_filter = Control.MOUSE_FILTER_PASS
 		add_child(top_button)
+	else:
+		top_button.mouse_filter = Control.MOUSE_FILTER_PASS
 
 	# EdgePanel & ShadowPanel sit within the base bounding box (y = 0 to y = H)
 	edge_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -147,6 +150,8 @@ func _setup_nodes() -> void:
 		top_button.button_up.connect(_on_button_up)
 		top_button.pressed.connect(_on_pressed_internal)
 
+const GENTIUM_BOLD = preload("res://assets/fonts/GentiumBookPlus-Bold.ttf")
+
 func _update_styles() -> void:
 	if not edge_panel or not shadow_panel or not top_button:
 		return
@@ -181,9 +186,8 @@ func _update_styles() -> void:
 	top_button.remove_theme_constant_override("outline_size")
 	top_button.remove_theme_color_override("font_outline_color")
 
-	var gentium_bold := load("res://assets/fonts/GentiumBookPlus-Bold.ttf") as Font
-	if gentium_bold:
-		top_button.add_theme_font_override("font", gentium_bold)
+	if GENTIUM_BOLD:
+		top_button.add_theme_font_override("font", GENTIUM_BOLD)
 	else:
 		var sys_font := SystemFont.new()
 		sys_font.font_weight = 700

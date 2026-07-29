@@ -1,5 +1,9 @@
 extends Area2D
 
+const GF_TEX = preload("res://scenes/player/p2_gf.png")
+const CRATE_TEX = preload("res://assets/objects/crate_with_letters.png")
+const MAIN_MENU_SCENE = preload("res://scenes/ui/main_menu.tscn")
+
 ## Summit Victory Goal Trigger.
 ## Dependencies:
 ## - Required Autoload: LetterManager (checks get_collected_count() >= required_letters).
@@ -73,8 +77,11 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 		player_col.set_deferred("disabled", true)
 	
 	var hud = level_node.get_node_or_null("HUD")
-	if is_instance_valid(hud) and hud.has_node("Control"):
-		hud.get_node("Control").hide()
+	if is_instance_valid(hud):
+		if hud.has_method("set_top_bar_visible"):
+			hud.set_top_bar_visible(false)
+		elif hud.has_node("Control"):
+			hud.get_node("Control").hide()
 	var touch_ui = level_node.get_node_or_null("TouchControls")
 	if is_instance_valid(touch_ui):
 		touch_ui.hide()
@@ -99,9 +106,8 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 	if not is_instance_valid(gf):
 		var gf_node := TextureRect.new()
 		gf_node.name = "GirlfriendVisual"
-		var gf_tex = load("res://scenes/player/p2_gf.png") as Texture2D
-		if gf_tex:
-			gf_node.texture = gf_tex
+		if GF_TEX:
+			gf_node.texture = GF_TEX
 		gf_node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		gf_node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		gf_node.custom_minimum_size = Vector2(65, 65)
@@ -139,9 +145,8 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 
 			var crate_delivered := Sprite2D.new()
 			crate_delivered.name = "OutroLetterCrate"
-			var crate_tex = load("res://assets/objects/crate_with_letters.png") as Texture2D
-			if crate_tex:
-				crate_delivered.texture = crate_tex
+			if CRATE_TEX:
+				crate_delivered.texture = CRATE_TEX
 			crate_delivered.scale = Vector2(0.11, 0.11)
 			crate_delivered.position = Vector2(0, -32)
 			player.add_child(crate_delivered)
@@ -251,9 +256,8 @@ func _trigger_victory() -> void:
 	SaveManager.current_save_data["has_finished_game"] = true
 	SaveManager.current_save_data["is_completed_run"] = true
 	SaveManager.save_current_state()
-	var menu_scene = load("res://scenes/ui/main_menu.tscn")
-	if menu_scene:
-		var menu = menu_scene.instantiate()
+	if MAIN_MENU_SCENE:
+		var menu = MAIN_MENU_SCENE.instantiate()
 		menu.is_save_menu = true
 		level_node.add_child(menu)
 

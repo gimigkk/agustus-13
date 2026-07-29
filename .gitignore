@@ -1,6 +1,12 @@
 # Godot 4 auto-generated files
 .godot/
 
+# Android build outputs & custom build cache
+android/
+*.apk
+*.aab
+*.keystore
+
 # Personal data privacy
 letters.json
 

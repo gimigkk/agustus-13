@@ -1,5 +1,9 @@
 extends Node
 
+const GF_TEX = preload("res://scenes/player/p2_gf.png")
+const CRATE_TEX = preload("res://assets/objects/crate_with_letters.png")
+const PAPER_TEX = preload("res://assets/objects/single_letter.png")
+
 ## Two-Stage Intro Cutscene Orchestrator.
 ## Dependencies:
 ## - Level Node Children: "Player" (CharacterBody2D + "Camera2D" + "Visual"), "BananaPeel", "HUD", "TouchControls".
@@ -118,9 +122,8 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 
 	_gf = TextureRect.new()
 	_gf.name = "GirlfriendVisual"
-	var gf_tex = load("res://scenes/player/p2_gf.png") as Texture2D
-	if gf_tex:
-		_gf.texture = gf_tex
+	if GF_TEX:
+		_gf.texture = GF_TEX
 	_gf.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_gf.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_gf.custom_minimum_size = Vector2(65, 65)
@@ -135,9 +138,8 @@ func play_intro_stage_1(level_node: Node2D) -> void:
 
 	var crate_sprite := Sprite2D.new()
 	crate_sprite.name = "LetterBox"
-	var crate_tex = load("res://assets/objects/crate_with_letters.png") as Texture2D
-	if crate_tex:
-		crate_sprite.texture = crate_tex
+	if CRATE_TEX:
+		crate_sprite.texture = CRATE_TEX
 	crate_sprite.scale = Vector2(0.11, 0.11)
 	crate_sprite.position = Vector2(0, -32)
 	_player.add_child(crate_sprite)
@@ -390,6 +392,12 @@ func _restore_gameplay_state() -> void:
 
 	if is_instance_valid(_hud):
 		_hud.visible = true
+		if _hud.has_method("set_top_bar_visible"):
+			_hud.set_top_bar_visible(true)
+		else:
+			var hud_control = _hud.get_node_or_null("Control") as Control
+			if is_instance_valid(hud_control):
+				hud_control.visible = true
 	if is_instance_valid(_touch_ui):
 		_touch_ui.visible = true
 
@@ -399,9 +407,8 @@ func _emit_single_letter(target_node: Node2D, initial_vel: Vector2) -> void:
 	var target_pos: Vector2 = target_node.global_position
 	
 	var paper := Sprite2D.new()
-	var paper_tex = load("res://assets/objects/single_letter.png") as Texture2D
-	if paper_tex:
-		paper.texture = paper_tex
+	if PAPER_TEX:
+		paper.texture = PAPER_TEX
 	paper.scale = Vector2(0.15, 0.15)
 	paper.z_index = 10
 	paper.global_position = _box.global_position

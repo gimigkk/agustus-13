@@ -8,8 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://c8hud0000001" path="res://scenes/ui/hud.tscn" id="5_hud"]
 [ext_resource type="PackedScene" uid="uid://cn3t3vi1ocl17" path="res://scenes/objects/finish_trigger.tscn" id="6_finish"]
 [ext_resource type="PackedScene" uid="uid://c7egs5hou1s3y" path="res://scenes/objects/banana_peel.tscn" id="7_cyt5c"]
-[ext_resource type="PackedScene" path="res://scenes/objects/fall_target.tscn" id="8_falltarget"]
-[ext_resource type="PackedScene" path="res://scenes/objects/walk_target.tscn" id="9_walktarget"]
+[ext_resource type="PackedScene" uid="uid://mivwpkwqtage" path="res://scenes/objects/fall_target.tscn" id="8_falltarget"]
+[ext_resource type="PackedScene" uid="uid://fnx8dd7q43b5" path="res://scenes/objects/walk_target.tscn" id="9_walktarget"]
 [ext_resource type="Texture2D" uid="uid://dmbf65tyr7hdr" path="res://assets/level/slices/bg_slice_0.png" id="11_bg0"]
 [ext_resource type="Texture2D" uid="uid://r1lkxb3ma4eu" path="res://assets/level/slices/bg_slice_1.png" id="12_bg1"]
 [ext_resource type="Texture2D" uid="uid://b8ko0ibgn2gv4" path="res://assets/level/slices/bg_slice_2.png" id="13_bg2"]
@@ -54,7 +54,7 @@ color = Color(0, 0, 0, 1)
 [node name="SkyBG" type="TextureRect" parent="."]
 z_index = -10
 offset_left = -400.0
-offset_top = -4784.0
+offset_top = -4803.0
 offset_right = 400.0
 offset_bottom = -3984.0
 texture = SubResource("GradientTex_sky")

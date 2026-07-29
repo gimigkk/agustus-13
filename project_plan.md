@@ -81,9 +81,17 @@
 ### Phase 4: The Birthday Surprise & Release
 - [X] Title design
 - [x] Ganti button font
-- [ ] Implement custom SFX and YouTube-sourced BGM (ensure credits are included at the end).
+- [ ] Implement custom SFX
+  - [ ] Jumping
+  - [ ] Walking
+  - [ ] Landing
+  - [ ] Collecting letters
+  - [ ] Slipping on banana peel
+  - [ ] Splat
+  - [ ] Paper flying
 - [X] fix the goddamn button design
 - [x] Create the "Summit" scene—a celebratory screen that triggers when the top is reached (checking if all 21 letters are found).
 - [x] Block the well if not all letters are collected, make the counter shake as an indicator.
 - [X] Playtest thoroughly to ensure it is fun and not overly frustrating.
-- [ ] Export Android APK. Delivery: Send via WhatsApp (fallback: let her play it directly on my phone).
+- [x] Fix so reolution is dynamic. Playing on phone has top and bottom black bars kinda annoying. Make it so it fits to the screen.
+- [X] Export Android APK. Delivery: Send via WhatsApp (fallback: let her play it directly on my phone).

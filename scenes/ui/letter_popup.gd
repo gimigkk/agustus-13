@@ -9,6 +9,7 @@ extends CanvasLayer
 @onready var dim_bg: ColorRect = $Control/DimBackground
 
 var _tween: Tween
+var _texture_cache: Dictionary = {}
 
 func _ready() -> void:
 	control.hide()
@@ -20,7 +21,11 @@ func show_letter(letter_id: int) -> void:
 	var img_path = data.get("image", "")
 	
 	if img_path != "":
-		var texture = load(img_path) as Texture2D
+		var texture: Texture2D = _texture_cache.get(img_path)
+		if not texture:
+			texture = load(img_path) as Texture2D
+			if texture:
+				_texture_cache[img_path] = texture
 		if texture:
 			letter_image.texture = texture
 			letter_image.show()

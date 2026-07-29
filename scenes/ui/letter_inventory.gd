@@ -78,8 +78,11 @@ func _set_gameplay_ui_visible(p_visible: bool) -> void:
 	if not current:
 		return
 	var hud = current.get_node_or_null("HUD")
-	if hud and hud.has_node("Control"):
-		hud.get_node("Control").visible = p_visible
+	if hud:
+		if hud.has_method("set_top_bar_visible"):
+			hud.set_top_bar_visible(p_visible)
+		elif hud.has_node("Control"):
+			hud.get_node("Control").visible = p_visible
 	var touch = current.get_node_or_null("TouchControls")
 	if touch:
 		touch.visible = p_visible

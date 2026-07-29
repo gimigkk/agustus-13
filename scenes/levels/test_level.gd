@@ -92,8 +92,11 @@ func _setup_intro_manager() -> void:
 ## Spawns the main menu overlay configured for boot or existing save resumption.
 func _instantiate_main_menu(is_save_boot: bool = false) -> void:
 	var hud = get_node_or_null("HUD")
-	if hud and hud.has_node("Control"):
-		hud.get_node("Control").visible = false
+	if hud:
+		if hud.has_method("set_top_bar_visible"):
+			hud.set_top_bar_visible(false)
+		elif hud.has_node("Control"):
+			hud.get_node("Control").visible = false
 	var touch = get_node_or_null("TouchControls")
 	if touch:
 		touch.visible = false

@@ -246,7 +246,7 @@ func _on_jumped(ratio: float = 0.0) -> void:
 	# Haptic vibration proportional to jump charge power
 	var vib_duration := int(lerpf(30.0, 110.0, ratio))
 	var vib_amp := lerpf(0.3, 1.0, ratio)
-	Input.vibrate_handheld(vib_duration, vib_amp)
+	_safe_vibrate(vib_duration, vib_amp)
 
 func _on_landed() -> void:
 	SaveManager.save_current_state()
@@ -257,7 +257,11 @@ func _on_landed() -> void:
 		var land_ratio := clampf(impact_speed / 1100.0, 0.15, 1.0)
 		var vib_duration := int(lerpf(25.0, 95.0, land_ratio))
 		var vib_amp := lerpf(0.25, 0.95, land_ratio)
-		Input.vibrate_handheld(vib_duration, vib_amp)
+		_safe_vibrate(vib_duration, vib_amp)
+
+func _safe_vibrate(duration_ms: int, amplitude: float = -1.0) -> void:
+	if OS.has_feature("mobile") and Input.has_method("vibrate_handheld"):
+		Input.vibrate_handheld(duration_ms, amplitude)
 
 	_last_air_velocity_y = 0.0
 
