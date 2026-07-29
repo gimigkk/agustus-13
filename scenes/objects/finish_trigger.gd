@@ -227,6 +227,7 @@ func _trigger_victory() -> void:
 	if not level_node: return
 	
 	SaveManager.current_save_data["has_finished_game"] = true
+	SaveManager.current_save_data["is_completed_run"] = true
 	SaveManager.save_current_state()
 	var menu_scene = load("res://scenes/ui/main_menu.tscn")
 	if menu_scene:

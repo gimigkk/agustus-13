@@ -56,31 +56,32 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -140.0
-offset_top = 40.0
+offset_top = 30.0
 offset_right = 140.0
-offset_bottom = 280.0
+offset_bottom = 310.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 28
+theme_override_constants/separation = 24
 
 [node name="BtnNewGame" type="Control" parent="ButtonContainer"]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 script = ExtResource("2_uiverse_script")
 text = "NEW GAME"
 font_size = 22
 
 [node name="BtnReadLetters" type="Control" parent="ButtonContainer"]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 script = ExtResource("2_uiverse_script")
 text = "READ LETTERS"
 font_size = 22
 
 [node name="BtnContinue" type="Control" parent="ButtonContainer"]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 script = ExtResource("2_uiverse_script")
 text = "CONTINUE"
 font_size = 22
+
 

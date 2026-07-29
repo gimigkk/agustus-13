@@ -23,9 +23,12 @@ func _ready() -> void:
 	tree_exiting.connect(_on_tree_exiting)
 
 	var has_save: bool = SaveManager.has_save_data()
+	var is_completed: bool = SaveManager.current_save_data.get("is_completed_run", false)
 	var is_in_game: bool = not is_boot_menu
 	
-	btn_continue.disabled = not (has_save or is_in_game)
+	var can_continue: bool = not is_completed and (has_save or is_in_game)
+	btn_continue.visible = can_continue
+	btn_continue.disabled = not can_continue
 	btn_read_letters.visible = SaveManager.current_save_data.get("has_finished_game", false)
 	
 	btn_new_game.pressed.connect(_on_new_game_pressed)

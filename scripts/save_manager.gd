@@ -16,7 +16,8 @@ var current_save_data: Dictionary = {
 	"collected_letters": [],
 	"global_collected_letters": [],
 	"has_save": false,
-	"has_finished_game": false
+	"has_finished_game": false,
+	"is_completed_run": false
 }
 
 func _ready() -> void:
@@ -45,6 +46,7 @@ func save_current_state() -> bool:
 
 func save_game(player_pos: Vector2, collected_letters: Array, global_letters: Array) -> bool:
 	var finished = current_save_data.get("has_finished_game", false)
+	var completed = current_save_data.get("is_completed_run", false)
 	var data := {
 		"player_pos_x": player_pos.x,
 		"player_pos_y": player_pos.y,
@@ -52,6 +54,7 @@ func save_game(player_pos: Vector2, collected_letters: Array, global_letters: Ar
 		"global_collected_letters": global_letters,
 		"has_save": true,
 		"has_finished_game": finished,
+		"is_completed_run": completed,
 		"timestamp": Time.get_unix_time_from_system()
 	}
 	
@@ -102,7 +105,8 @@ func clear_save() -> void:
 		"collected_letters": [],
 		"global_collected_letters": global_letters,
 		"has_save": false,
-		"has_finished_game": finished_game
+		"has_finished_game": finished_game,
+		"is_completed_run": false
 	}
 	force_intro_on_launch = true
 	
