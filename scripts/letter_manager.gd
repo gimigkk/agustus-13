@@ -58,12 +58,29 @@ func load_messages() -> void:
 	else:
 		push_error("LetterManager: Invalid JSON in letters file.")
 
-## Returns the text message associated with a given letter ID.
-func get_letter_message(letter_id: int) -> String:
+## Returns the dictionary data for a given letter ID.
+func get_letter_data(letter_id: int) -> Dictionary:
 	var key := str(letter_id)
 	if messages.has(key):
-		return str(messages[key])
-	return "Letter #%d: A special memory..." % letter_id
+		var data = messages[key]
+		if data is Dictionary:
+			return data
+		elif typeof(data) == TYPE_STRING:
+			# Fallback for old save/json format
+			return {
+				"text": data,
+				"author": "Unknown",
+				"image": "res://assets/ui/placeholder_decorated_letter.png"
+			}
+	return {
+		"text": "Letter #%d: A special memory..." % letter_id,
+		"author": "Unknown",
+		"image": "res://assets/ui/placeholder_decorated_letter.png"
+	}
+
+## Returns the text message associated with a given letter ID.
+func get_letter_message(letter_id: int) -> String:
+	return get_letter_data(letter_id).get("text", "Letter #%d: A special memory..." % letter_id)
 
 ## Returns true if the specified letter ID has been collected.
 func is_letter_collected(letter_id: int) -> bool:

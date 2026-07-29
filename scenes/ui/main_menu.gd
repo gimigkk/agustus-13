@@ -77,4 +77,4 @@ func _on_read_letters_pressed() -> void:
 	if not current: return
 	var hud = current.get_node_or_null("HUD")
 	if hud and "letter_inventory" in hud and hud.letter_inventory:
-		hud.letter_inventory.open_inventory()
+		hud.letter_inventory.open_inventory(true)

@@ -16,14 +16,16 @@ func _ready() -> void:
 func show_letter(letter_id: int) -> void:
 	title_label.text = "Letter #%d" % letter_id
 	
-	var img_path := "res://assets/letters/letter_%02d.png" % letter_id
-	if ResourceLoader.exists(img_path):
+	var data = LetterManager.get_letter_data(letter_id)
+	var img_path = data.get("image", "")
+	
+	if img_path != "" and ResourceLoader.exists(img_path):
 		letter_image.texture = load(img_path) as Texture2D
 		letter_image.show()
 		fallback_label.hide()
 	else:
 		letter_image.hide()
-		fallback_label.text = LetterManager.get_letter_message(letter_id)
+		fallback_label.text = data.get("text", LetterManager.get_letter_message(letter_id))
 		fallback_label.show()
 	
 	control.show()

@@ -1,6 +1,28 @@
-[gd_scene load_steps=2 format=3 uid="uid://c8letterinv0001"]
+[gd_scene load_steps=5 format=3 uid="uid://c8letterinv0001"]
 
 [ext_resource type="Script" path="res://scenes/ui/letter_inventory.gd" id="1_inv_script"]
+[ext_resource type="Texture2D" uid="uid://cy88j2d0e7y" path="res://assets/objects/inventory_crate.png" id="2_crate"]
+[ext_resource type="Shader" uid="uid://c6a855364s7e" path="res://shaders/menu_blur.gdshader" id="3_blur"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_left"]
+size = Vector2(80, 650)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bottom"]
+size = Vector2(350, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_top"]
+size = Vector2(350, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_screen_w"]
+size = Vector2(720, 100)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_screen_h"]
+size = Vector2(100, 1280)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_menu_blur"]
+shader = ExtResource("3_blur")
+shader_parameter/blur_radius = 5.0
+shader_parameter/dim_color = Color(0, 0, 0, 0.6)
 
 [node name="LetterInventory" type="CanvasLayer"]
 process_mode = 3
@@ -8,6 +30,7 @@ layer = 110
 script = ExtResource("1_inv_script")
 
 [node name="Control" type="Control" parent="."]
+mouse_filter = 2
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -16,59 +39,123 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="ScreenBounds" type="StaticBody2D" parent="Control"]
+
+[node name="Floor" type="CollisionShape2D" parent="Control/ScreenBounds"]
+position = Vector2(360, 1330)
+shape = SubResource("RectangleShape2D_screen_w")
+
+[node name="Ceiling" type="CollisionShape2D" parent="Control/ScreenBounds"]
+position = Vector2(360, -50)
+shape = SubResource("RectangleShape2D_screen_w")
+
+[node name="Left" type="CollisionShape2D" parent="Control/ScreenBounds"]
+position = Vector2(-50, 640)
+shape = SubResource("RectangleShape2D_screen_h")
+
+[node name="Right" type="CollisionShape2D" parent="Control/ScreenBounds"]
+position = Vector2(770, 640)
+shape = SubResource("RectangleShape2D_screen_h")
+
 [node name="DimBackground" type="ColorRect" parent="Control"]
+material = SubResource("ShaderMaterial_menu_blur")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.75)
+mouse_filter = 2
 
-[node name="Panel" type="PanelContainer" parent="Control"]
+[node name="CenterContainer" type="CenterContainer" parent="Control"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -320.0
-offset_top = -520.0
-offset_right = 320.0
-offset_bottom = 520.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="Control/Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/CenterContainer"]
+mouse_filter = 2
 layout_mode = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 25
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 25
+theme_override_constants/separation = 40
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/Panel/MarginContainer"]
+[node name="CounterLabel" type="Label" parent="Control/CenterContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
-
-[node name="Header" type="HBoxContainer" parent="Control/Panel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="TitleLabel" type="Label" parent="Control/Panel/MarginContainer/VBoxContainer/Header"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
-theme_override_font_sizes/font_size = 30
-text = "Letters (0 / 21)"
+theme_override_colors/font_color = Color(1, 0.85098, 0.4, 1)
+theme_override_font_sizes/font_size = 28
+text = "0 / 21 Letters"
 horizontal_alignment = 1
 
-[node name="GridContainer" type="GridContainer" parent="Control/Panel/MarginContainer/VBoxContainer"]
+[node name="CratePhysicsContainer" type="Control" parent="Control/CenterContainer/VBoxContainer"]
+mouse_filter = 2
+custom_minimum_size = Vector2(422, 605)
 layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/h_separation = 15
-theme_override_constants/v_separation = 15
-columns = 3
 
-[node name="CloseBtn" type="Button" parent="Control/Panel/MarginContainer/VBoxContainer"]
+[node name="PhysicsWorld" type="Node2D" parent="Control/CenterContainer/VBoxContainer/CratePhysicsContainer"]
+position = Vector2(211, 302)
+
+[node name="Sprite2D" type="Sprite2D" parent="Control/CenterContainer/VBoxContainer/CratePhysicsContainer/PhysicsWorld"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_crate")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Control/CenterContainer/VBoxContainer/CratePhysicsContainer/PhysicsWorld"]
+
+[node name="CollisionShapeLeft" type="CollisionShape2D" parent="Control/CenterContainer/VBoxContainer/CratePhysicsContainer/PhysicsWorld/StaticBody2D"]
+position = Vector2(-200, 0)
+shape = SubResource("RectangleShape2D_left")
+
+[node name="CollisionShapeRight" type="CollisionShape2D" parent="Control/CenterContainer/VBoxContainer/CratePhysicsContainer/PhysicsWorld/StaticBody2D"]
+position = Vector2(200, 0)
+shape = SubResource("RectangleShape2D_left")
+
+[node name="CollisionShapeBottom" type="CollisionShape2D" parent="Control/CenterContainer/VBoxContainer/CratePhysicsContainer/PhysicsWorld/StaticBody2D"]
+position = Vector2(0, 280)
+shape = SubResource("RectangleShape2D_bottom")
+
+[node name="LettersContainer" type="Node2D" parent="Control/CenterContainer/VBoxContainer/CratePhysicsContainer/PhysicsWorld"]
+process_mode = 3
+
+[node name="DetailsPanel" type="PanelContainer" parent="Control/CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(422, 120)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/CenterContainer/VBoxContainer/DetailsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85098, 0.4, 1)
+theme_override_font_sizes/font_size = 28
+text = "Select a letter"
+
+[node name="AuthorLabel" type="Label" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "letter by xxxx"
+
+[node name="ReadButton" type="Button" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+disabled = true
+text = "Read"
+
+[node name="CloseBtn" type="Button" parent="Control/CenterContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24

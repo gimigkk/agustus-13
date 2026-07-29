@@ -1,23 +1,107 @@
 {
-  "1": "Happy 21st Birthday! The climb begins...",
-  "2": "Remember when we first met?",
-  "3": "You're doing great, keep going up!",
-  "4": "Letter #4 placeholder message.",
-  "5": "Letter #5 placeholder message.",
-  "6": "Letter #6 placeholder message.",
-  "7": "Letter #7 placeholder message.",
-  "8": "Letter #8 placeholder message.",
-  "9": "Letter #9 placeholder message.",
-  "10": "Halfway there! Keep jumping!",
-  "11": "Letter #11 placeholder message.",
-  "12": "Letter #12 placeholder message.",
-  "13": "Letter #13 placeholder message.",
-  "14": "Letter #14 placeholder message.",
-  "15": "Letter #15 placeholder message.",
-  "16": "Letter #16 placeholder message.",
-  "17": "Letter #17 placeholder message.",
-  "18": "Almost at the peak!",
-  "19": "Letter #19 placeholder message.",
-  "20": "One more letter to find!",
-  "21": "Congratulations! You collected all 21 letters!"
+  "1": {
+    "text": "Happy 21st Birthday! The climb begins...",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "2": {
+    "text": "Remember when we first met?",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "3": {
+    "text": "You're doing great, keep going up!",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "4": {
+    "text": "Letter #4 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "5": {
+    "text": "Letter #5 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "6": {
+    "text": "Letter #6 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "7": {
+    "text": "Letter #7 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "8": {
+    "text": "Letter #8 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "9": {
+    "text": "Letter #9 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "10": {
+    "text": "Halfway there! Keep jumping!",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "11": {
+    "text": "Letter #11 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "12": {
+    "text": "Letter #12 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "13": {
+    "text": "Letter #13 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "14": {
+    "text": "Letter #14 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "15": {
+    "text": "Letter #15 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "16": {
+    "text": "Letter #16 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "17": {
+    "text": "Letter #17 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "18": {
+    "text": "Almost at the peak!",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "19": {
+    "text": "Letter #19 placeholder message.",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "20": {
+    "text": "One more letter to find!",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  },
+  "21": {
+    "text": "Congratulations! You collected all 21 letters!",
+    "author": "Unknown",
+    "image": "res://assets/ui/placeholder_decorated_letter.png"
+  }
 }

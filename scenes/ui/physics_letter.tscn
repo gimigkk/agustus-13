@@ -1,0 +1,44 @@
+[gd_scene load_steps=6 format=3 uid="uid://b0j6rm7j6k441"]
+
+[ext_resource type="Script" path="res://scenes/ui/physics_letter.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dhmvj3n8k1b0h" path="res://assets/objects/inventory_mail.png" id="2_tex"]
+[ext_resource type="Shader" path="res://shaders/ui_shadow.gdshader" id="3_shadow"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mail"]
+size = Vector2(140, 95)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_shadow"]
+shader = ExtResource("3_shadow")
+shader_parameter/blur_amount = 0.0
+
+[node name="PhysicsLetter" type="RigidBody2D"]
+input_pickable = true
+script = ExtResource("1_script")
+
+[node name="ShadowSprite" type="Sprite2D" parent="."]
+modulate = Color(0, 0, 0, 0.6)
+material = SubResource("ShaderMaterial_shadow")
+scale = Vector2(0.575, 0.575)
+texture = ExtResource("2_tex")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 1
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+rotation = -0.349066
+shape = SubResource("RectangleShape2D_mail")
+
+[node name="Label" type="Label" parent="."]
+z_index = 1
+offset_left = -30.0
+offset_top = -25.0
+offset_right = 30.0
+offset_bottom = 25.0
+rotation = -0.349066
+theme_override_colors/font_color = Color(0.18, 0.22, 0.35, 1.0)
+theme_override_font_sizes/font_size = 28
+text = "#1"
+horizontal_alignment = 1
+vertical_alignment = 1

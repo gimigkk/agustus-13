@@ -1,58 +1,139 @@
 extends CanvasLayer
 
-## Letter Inventory modal displaying a grid of collected letters and locked slots.
+## Letter Inventory modal displaying a physics crate with collected letters.
+
+const PHYSICS_LETTER_SCENE = preload("res://scenes/ui/physics_letter.tscn")
 
 @onready var control: Control = $Control
-@onready var title_label: Label = $Control/Panel/MarginContainer/VBoxContainer/Header/TitleLabel
-@onready var grid_container: GridContainer = $Control/Panel/MarginContainer/VBoxContainer/GridContainer
-@onready var close_btn: Button = $Control/Panel/MarginContainer/VBoxContainer/CloseBtn
+@onready var title_label: Label = $Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/VBoxContainer/TitleLabel
+@onready var author_label: Label = $Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/VBoxContainer/AuthorLabel
+@onready var read_button: Button = $Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/ReadButton
+@onready var close_btn: Button = $Control/CenterContainer/VBoxContainer/CloseBtn
+@onready var letters_container: Node2D = $Control/CenterContainer/VBoxContainer/CratePhysicsContainer/PhysicsWorld/LettersContainer
+@onready var counter_label: Label = $Control/CenterContainer/VBoxContainer/CounterLabel
+@onready var details_panel: PanelContainer = $Control/CenterContainer/VBoxContainer/DetailsPanel
+
+var _showing_global: bool = false
+var _selected_letter_id: int = -1
 
 func _ready() -> void:
 	control.hide()
+	control.process_mode = Node.PROCESS_MODE_DISABLED
 	close_btn.pressed.connect(hide_inventory)
+	read_button.pressed.connect(_on_read_pressed)
 
-## Opens the inventory grid overlay and pauses gameplay.
-func open_inventory() -> void:
-	var count: int = LetterManager.global_letter_ids.size()
-	title_label.text = "Letters (%d / 21)" % count
+## Opens the inventory overlay and pauses gameplay.
+func open_inventory(show_global: bool = false) -> void:
+	_showing_global = show_global
+	_populate_crate()
 	
-	_populate_grid()
+	# Validate or pick a new selection
+	var is_valid = false
+	if _selected_letter_id != -1:
+		is_valid = LetterManager.is_global_letter_collected(_selected_letter_id) if _showing_global else LetterManager.is_letter_collected(_selected_letter_id)
+		
+	if not is_valid:
+		_selected_letter_id = -1
+		# Pick highest collected
+		for i in range(21, 0, -1):
+			var collected = LetterManager.is_global_letter_collected(i) if _showing_global else LetterManager.is_letter_collected(i)
+			if collected:
+				_selected_letter_id = i
+				break
+				
+	if _selected_letter_id != -1:
+		_on_letter_selected(_selected_letter_id)
+		
+	var count: int = LetterManager.global_letter_ids.size() if _showing_global else LetterManager.collected_letter_ids.size()
+	counter_label.text = "%d / %d Letters" % [count, LetterManager.TOTAL_LETTERS]
+	
+	if count == 0:
+		details_panel.hide()
+	else:
+		details_panel.show()
+		
 	control.show()
+	control.process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = true
 
-## Closes the inventory grid overlay and unpauses gameplay.
+## Closes the inventory overlay and unpauses gameplay.
 func hide_inventory() -> void:
 	control.hide()
+	control.process_mode = Node.PROCESS_MODE_DISABLED
 	get_tree().paused = false
 
-## Clears and rebuilds letter collection card buttons.
-func _populate_grid() -> void:
-	for child in grid_container.get_children():
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if control.visible:
+			hide_inventory()
+
+## Clears and rebuilds letter rigidbodies inside the crate.
+func _populate_crate() -> void:
+	for child in letters_container.get_children():
 		child.queue_free()
 	
-	var mail_icon = load("res://assets/objects/inventory_mail.png") as Texture2D
+	# Spawn collected letters
 	for i in range(1, 22):
-		var is_collected: bool = LetterManager.is_global_letter_collected(i)
-		var card := Button.new()
-		card.custom_minimum_size = Vector2(175, 95)
-		card.add_theme_font_size_override("font_size", 18)
-		
+		var is_collected = LetterManager.is_global_letter_collected(i) if _showing_global else LetterManager.is_letter_collected(i)
 		if is_collected:
-			card.text = "Letter #%d" % i
-			if mail_icon:
-				card.icon = mail_icon
-				card.expand_icon = true
-			card.pressed.connect(_on_letter_clicked.bind(i))
-		else:
-			card.text = "Locked"
-			card.disabled = true
+			var letter_inst = PHYSICS_LETTER_SCENE.instantiate()
+			letter_inst.letter_id = i
 			
-		grid_container.add_child(card)
+			# Add some random initial position/rotation inside the crate bounds
+			var rand_x = randf_range(-150, 150)
+			var rand_y = randf_range(-200, 100)
+			letter_inst.position = Vector2(rand_x, rand_y)
+			letter_inst.rotation = randf_range(-PI, PI)
+			
+			letters_container.add_child(letter_inst)
+			letter_inst.letter_selected.connect(_on_letter_selected)
 
-## Opens full letter popup view for a selected collected letter ID.
-func _on_letter_clicked(letter_id: int) -> void:
+func _on_letter_selected(letter_id: int) -> void:
+	_selected_letter_id = letter_id
+	var data = LetterManager.get_letter_data(letter_id)
+	title_label.text = "Letter #%d" % letter_id
+	author_label.text = "letter by " + data.get("author", "Unknown")
+	read_button.disabled = false
+	
+	for child in letters_container.get_children():
+		if child.get("letter_id") == letter_id:
+			letters_container.move_child(child, -1)
+			break
+
+## Opens full letter popup view for the currently selected letter ID.
+func _on_read_pressed() -> void:
+	if _selected_letter_id == -1:
+		return
+		
 	var popup = get_node_or_null("../LetterPopup")
 	if not popup and get_tree().current_scene:
 		popup = get_tree().current_scene.get_node_or_null("HUD/LetterPopup")
 	if popup:
-		popup.show_letter(letter_id)
+		popup.show_letter(_selected_letter_id)
+
+func _input(event: InputEvent) -> void:
+	if not control.visible: return
+	
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		var space = letters_container.get_world_2d().direct_space_state
+		var query = PhysicsPointQueryParameters2D.new()
+		query.canvas_instance_id = get_instance_id()
+		query.position = letters_container.get_canvas_transform().affine_inverse() * event.position
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		
+		var results = space.intersect_point(query)
+		if results.size() > 0:
+			# Filter to only include PhysicsLetter nodes
+			var letters = []
+			for res in results:
+				if res.collider.has_method("_start_drag"):
+					letters.append(res.collider)
+			
+			if letters.size() > 0:
+				# Sort by sibling index (highest is visually on top)
+				letters.sort_custom(func(a, b): return a.get_index() > b.get_index())
+				
+				# Start dragging the top-most letter
+				letters[0]._start_drag()
+				get_viewport().set_input_as_handled()
