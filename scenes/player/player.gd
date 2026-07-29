@@ -56,6 +56,7 @@ var squash_stretch_scale: Vector2 = Vector2(1.0, 1.0)
 var visual_tween: Tween
 var walk_anim_time: float = 0.0
 var last_global_pos_x: float = 0.0
+var _last_air_velocity_y: float = 0.0
 
 var base_visual_pos: Vector2 = Vector2(-32.5, -35.0)
 
@@ -103,6 +104,10 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	var currently_on_floor := is_on_floor()
+
+	# Track air downward speed for landing vibration
+	if not currently_on_floor:
+		_last_air_velocity_y = velocity.y
 
 	# Detect Landing event (was in air -> now on floor)
 	if currently_on_floor and not was_on_floor:
@@ -225,20 +230,36 @@ func _update_visual_animation(delta: float, calc_vel_x: float = 0.0) -> void:
 func _execute_charged_jump() -> void:
 	if not is_charging_jump:
 		return
-	var launch_vel := lerpf(min_jump_velocity, max_jump_velocity, charge_ratio)
+	var ratio := charge_ratio
+	var launch_vel := lerpf(min_jump_velocity, max_jump_velocity, ratio)
 	velocity.y = launch_vel
 	is_charging_jump = false
 	charge_timer = 0.0
 	charge_ratio = 0.0
 	coyote_timer = 0.0
-	_on_jumped()
+	_on_jumped(ratio)
 
-func _on_jumped() -> void:
+func _on_jumped(ratio: float = 0.0) -> void:
 	# Stretch vertically on jump launch (X=0.55, Y=1.45)
 	_apply_squash_stretch(Vector2(0.55, 1.45), 0.38)
 
+	# Haptic vibration proportional to jump charge power
+	var vib_duration := int(lerpf(30.0, 110.0, ratio))
+	var vib_amp := lerpf(0.3, 1.0, ratio)
+	Input.vibrate_handheld(vib_duration, vib_amp)
+
 func _on_landed() -> void:
 	SaveManager.save_current_state()
+
+	# Landing haptic vibration based on fall speed impact
+	var impact_speed := maxf(0.0, _last_air_velocity_y)
+	if impact_speed > 80.0:
+		var land_ratio := clampf(impact_speed / 1100.0, 0.15, 1.0)
+		var vib_duration := int(lerpf(25.0, 95.0, land_ratio))
+		var vib_amp := lerpf(0.25, 0.95, land_ratio)
+		Input.vibrate_handheld(vib_duration, vib_amp)
+
+	_last_air_velocity_y = 0.0
 
 	if visual:
 		var current_rot := fmod(visual.rotation_degrees, 360.0)
