@@ -73,13 +73,14 @@
 - [x] Add player animations (Idle, Walk, Jump, Fall).
 - [x] Add a UI HUD to show how many letters have been collected, with interactive inventory journal modal.
 - [X] Inventory Hud redesign
-- [ ] Top Bar Hud redesign
+- [x] Top Bar Hud redesign
 - [X] Open Letter Hud. Plan to add a 3d animation of the letter itself opening from being folded. Need to find out if possible via code or not.
 - [x] ~Finish Modal~ Show main menu with new "Read Letters" button, showing inventory without playing the game. Also need a separate save file tracker so the letters acts as an achievent type of thing. A global inventory. When starting new game letter doesn't dissapear from this one.
 - [X] Completely change the letter system so it's actually a picture of a decorated letter (digital ofc), not a text
 
 ### Phase 4: The Birthday Surprise & Release
-- [ ] Title design
+- [X] Title design
+- [x] Ganti button font
 - [ ] Implement custom SFX and YouTube-sourced BGM (ensure credits are included at the end).
 - [X] fix the goddamn button design
 - [x] Create the "Summit" scene—a celebratory screen that triggers when the top is reached (checking if all 21 letters are found).

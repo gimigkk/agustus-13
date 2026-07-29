@@ -100,16 +100,22 @@ func _setup_nodes() -> void:
 
 	# EdgePanel & ShadowPanel sit within the base bounding box (y = 0 to y = H)
 	edge_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	edge_panel.offset_left = 0
 	edge_panel.offset_top = 0
+	edge_panel.offset_right = 0
 	edge_panel.offset_bottom = 0
 	
 	shadow_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shadow_panel.offset_left = 0
 	shadow_panel.offset_top = 0
+	shadow_panel.offset_right = 0
 	shadow_panel.offset_bottom = 2
 
 	# TopButton elevates above the base box (y = offset_rest to y = H + offset_rest)
 	top_button.set_anchors_preset(Control.PRESET_FULL_RECT)
+	top_button.offset_left = 0
 	top_button.offset_top = offset_rest
+	top_button.offset_right = 0
 	top_button.offset_bottom = offset_rest
 
 	top_button.focus_mode = Control.FOCUS_NONE
@@ -175,9 +181,13 @@ func _update_styles() -> void:
 	top_button.remove_theme_constant_override("outline_size")
 	top_button.remove_theme_color_override("font_outline_color")
 
-	var sys_font := SystemFont.new()
-	sys_font.font_weight = 700
-	top_button.add_theme_font_override("font", sys_font)
+	var gentium_bold := load("res://assets/fonts/GentiumBookPlus-Bold.ttf") as Font
+	if gentium_bold:
+		top_button.add_theme_font_override("font", gentium_bold)
+	else:
+		var sys_font := SystemFont.new()
+		sys_font.font_weight = 700
+		top_button.add_theme_font_override("font", sys_font)
 
 	top_button.add_theme_color_override("icon_normal_color", font_color)
 	top_button.add_theme_color_override("icon_hover_color", font_color)

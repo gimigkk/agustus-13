@@ -5,10 +5,10 @@ extends CanvasLayer
 const PHYSICS_LETTER_SCENE = preload("res://scenes/ui/physics_letter.tscn")
 
 @onready var control: Control = $Control
-@onready var title_label: Label = $Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/VBoxContainer/TitleLabel
-@onready var author_label: Label = $Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/VBoxContainer/AuthorLabel
-@onready var read_button: Button = $Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/ReadButton
-@onready var close_btn: Button = $Control/CenterContainer/VBoxContainer/CloseBtn
+@onready var title_label: Label = $Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/VBoxContainer/TitleLabel
+@onready var author_label: Label = $Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/VBoxContainer/AuthorLabel
+@onready var read_button: Control = $Control/CenterContainer/VBoxContainer/ButtonContainer/ReadBtn
+@onready var close_btn: Control = $Control/CenterContainer/VBoxContainer/ButtonContainer/CloseBtn
 @onready var letters_container: Node2D = $Control/CenterContainer/VBoxContainer/CratePhysicsContainer/PhysicsWorld/LettersContainer
 @onready var counter_label: Label = $Control/CenterContainer/VBoxContainer/CounterLabel
 @onready var details_panel: PanelContainer = $Control/CenterContainer/VBoxContainer/DetailsPanel
@@ -19,8 +19,10 @@ var _selected_letter_id: int = -1
 func _ready() -> void:
 	control.hide()
 	control.process_mode = Node.PROCESS_MODE_DISABLED
-	close_btn.pressed.connect(hide_inventory)
-	read_button.pressed.connect(_on_read_pressed)
+	if close_btn.has_signal("pressed"):
+		close_btn.pressed.connect(hide_inventory)
+	if read_button.has_signal("pressed"):
+		read_button.pressed.connect(_on_read_pressed)
 
 ## Opens the inventory overlay and pauses gameplay.
 func open_inventory(show_global: bool = false) -> void:
@@ -52,6 +54,8 @@ func open_inventory(show_global: bool = false) -> void:
 	else:
 		details_panel.show()
 		
+	_set_gameplay_ui_visible(false)
+
 	control.show()
 	control.process_mode = Node.PROCESS_MODE_ALWAYS
 	get_tree().paused = true
@@ -60,7 +64,25 @@ func open_inventory(show_global: bool = false) -> void:
 func hide_inventory() -> void:
 	control.hide()
 	control.process_mode = Node.PROCESS_MODE_DISABLED
+	
+	# Only restore gameplay UI if MainMenu is not currently open
+	var current = get_tree().current_scene if get_tree() else null
+	var main_menu = current.get_node_or_null("MainMenu") if current else null
+	if not is_instance_valid(main_menu):
+		_set_gameplay_ui_visible(true)
+		
 	get_tree().paused = false
+
+func _set_gameplay_ui_visible(p_visible: bool) -> void:
+	var current = get_tree().current_scene if get_tree() else null
+	if not current:
+		return
+	var hud = current.get_node_or_null("HUD")
+	if hud and hud.has_node("Control"):
+		hud.get_node("Control").visible = p_visible
+	var touch = current.get_node_or_null("TouchControls")
+	if touch:
+		touch.visible = p_visible
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST:

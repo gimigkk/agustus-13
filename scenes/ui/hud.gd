@@ -3,8 +3,9 @@ extends CanvasLayer
 ## In-game HUD overlay for letter count tracking, developer hotkeys, and inventory modal access.
 
 @onready var control: Control = $Control
-@onready var letter_counter_btn: Button = $Control/TopBar/MarginContainer/HBoxContainer/LetterCounterBtn
-@onready var menu_btn: Control = $Control/TopBar/MarginContainer/HBoxContainer/MenuBtn
+@onready var letter_counter_btn: Button = $Control/TopBar/HBoxContainer/LetterCounterBtn
+@onready var counter_label: Label = $Control/TopBar/HBoxContainer/LetterCounterBtn/Content/CounterLabel
+@onready var menu_btn: Control = $Control/TopBar/HBoxContainer/MenuBtn
 @onready var letter_inventory: CanvasLayer = $LetterInventory
 
 var current_displayed_count: int = 0
@@ -35,7 +36,10 @@ func update_counter(count: int) -> void:
 	var total_available: int = LetterManager.TOTAL_LETTERS
 	var safe_count: int = clampi(count, 0, total_available)
 	current_displayed_count = safe_count
-	letter_counter_btn.text = "%d / %d Letters" % [safe_count, total_available]
+	var text_str := "%d / %d Letters" % [safe_count, total_available]
+	if is_instance_valid(counter_label):
+		counter_label.text = text_str
+	letter_counter_btn.text = ""
 
 
 
@@ -167,27 +171,56 @@ func _create_paper_node() -> Control:
 func _punch_counter_btn() -> void:
 	if not letter_counter_btn:
 		return
-	letter_counter_btn.pivot_offset = letter_counter_btn.size * 0.5
-	var tween := create_tween()
-	tween.tween_property(letter_counter_btn, "scale", Vector2(1.15, 1.15), 0.06).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(letter_counter_btn, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	var target_node: Control = letter_counter_btn.get_node_or_null("Content") as Control
+	if not target_node:
+		target_node = letter_counter_btn
+
+	var mail_icon: Control = target_node.get_node_or_null("MailIcon") as Control
+
+	# Center pivot over icon area
+	target_node.pivot_offset = Vector2(28.0, target_node.size.y * 0.5)
+
+	# Step 1: Explosive impact burst (scale + tilt)
+	var t1 := create_tween().set_parallel(true)
+	t1.tween_property(target_node, "scale", Vector2(1.32, 1.25), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t1.tween_property(target_node, "rotation_degrees", -7.0, 0.07).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if is_instance_valid(mail_icon):
+		mail_icon.pivot_offset = mail_icon.size * 0.5
+		t1.tween_property(mail_icon, "scale", Vector2(1.35, 1.35), 0.07).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+	# Step 2: Elastic recoil & counter-tilt
+	var t2 := create_tween().set_parallel(true)
+	t2.tween_property(target_node, "scale", Vector2(0.95, 0.95), 0.10).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	t2.tween_property(target_node, "rotation_degrees", 4.0, 0.10).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	if is_instance_valid(mail_icon):
+		t2.tween_property(mail_icon, "scale", Vector2(0.9, 0.9), 0.10)
+
+	# Step 3: Elastic bounce settlement
+	var t3 := create_tween().set_parallel(true)
+	t3.tween_property(target_node, "scale", Vector2(1.0, 1.0), 0.14).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	t3.tween_property(target_node, "rotation_degrees", 0.0, 0.14).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	if is_instance_valid(mail_icon):
+		t3.tween_property(mail_icon, "scale", Vector2(1.0, 1.0), 0.14).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 func _spawn_landing_sparkle(pos: Vector2) -> void:
 	if not control:
 		return
-	for s in range(5):
+	for s in range(8):
 		var p := ColorRect.new()
-		p.color = Color(1.0, 0.9, 0.4, 1.0) # Golden sparkle
-		p.size = Vector2(4, 4)
-		p.position = pos - Vector2(2, 2)
+		p.color = Color(1.0, 0.88, 0.35, 1.0) # Bright golden sparkle
+		p.size = Vector2(5, 5)
+		p.position = pos - Vector2(2.5, 2.5)
 		p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		control.add_child(p)
 
-		var offset := Vector2(randf_range(-25, 25), randf_range(-25, 25))
+		var angle := float(s) * (PI * 2.0 / 8.0) + randf_range(-0.2, 0.2)
+		var dist := randf_range(28.0, 45.0)
+		var sparkle_offset := Vector2(cos(angle), sin(angle)) * dist
+
 		var tween := create_tween().set_parallel(true)
-		tween.tween_property(p, "position", pos + offset, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tween.tween_property(p, "modulate:a", 0.0, 0.25)
-		tween.tween_property(p, "scale", Vector2(0.1, 0.1), 0.25)
+		tween.tween_property(p, "position", pos + sparkle_offset, 0.30).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(p, "modulate:a", 0.0, 0.30)
+		tween.tween_property(p, "scale", Vector2(0.1, 0.1), 0.30)
 		tween.chain().tween_callback(func():
 			if is_instance_valid(p):
 				p.queue_free()

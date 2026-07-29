@@ -5,6 +5,7 @@
 [ext_resource type="Shader" path="res://shaders/menu_blur.gdshader" id="3_blur_shader"]
 
 [ext_resource type="Texture2D" uid="uid://betgt6ksspub7" path="res://assets/ui/title_logo.png" id="4_title_logo"]
+[ext_resource type="FontFile" path="res://assets/fonts/GentiumBookPlus-Regular.ttf" id="5_gentium_reg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("3_blur_shader")
@@ -78,14 +79,18 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -200.0
-offset_top = -50.0
-offset_right = 200.0
-offset_bottom = -20.0
+offset_left = -250.0
+offset_top = -60.0
+offset_right = 250.0
+offset_bottom = -25.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 0.55)
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 1, 1, 0.8)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("5_gentium_reg")
+theme_override_font_sizes/font_size = 18
 text = "© 2026 gimigkk. All rights reserved."
 horizontal_alignment = 1
 vertical_alignment = 1

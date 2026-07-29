@@ -54,7 +54,7 @@ func _stop_drag() -> void:
 	_drag_tween.tween_property(self, "_shadow_offset", 3.0, 0.15)
 	_drag_tween.tween_property(shadow_sprite.material, "shader_parameter/blur_amount", 0.0, 0.15)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if _dragging:
 		global_position = get_global_mouse_position() + _drag_offset
 		global_position.x = clampf(global_position.x, 80.0, 720.0 - 80.0)

@@ -102,9 +102,6 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 		var spin_tween := level_node.create_tween()
 		spin_tween.tween_property(player_visual, "rotation_degrees", 360.0, arc_duration)
 
-	# Create the delivered letter crate instance on landing
-	var crate_delivered: Sprite2D = null
-
 	var landing_delay := level_node.create_tween()
 	landing_delay.tween_interval(arc_duration)
 	landing_delay.tween_callback(func():
@@ -115,7 +112,7 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 			if is_instance_valid(existing_crate):
 				existing_crate.queue_free()
 
-			crate_delivered = Sprite2D.new()
+			var crate_delivered := Sprite2D.new()
 			crate_delivered.name = "OutroLetterCrate"
 			var crate_tex = load("res://assets/objects/crate_with_letters.png") as Texture2D
 			if crate_tex:
@@ -183,14 +180,14 @@ func _play_finish_sequence(player: CharacterBody2D) -> void:
 			gf.scale = Vector2(1.0, 1.0)
 
 		# Detach crate from player and place down on summit ground between BF and GF
-		if is_instance_valid(crate_delivered):
-			crate_delivered.reparent(level_node)
-			crate_delivered.global_position = Vector2(right_target_x - 55.0, ground_surface_y - 14.0)
-			crate_delivered.scale = Vector2(0.11, 0.11)
+		if is_instance_valid(crate_ref):
+			crate_ref.reparent(level_node)
+			crate_ref.global_position = Vector2(right_target_x - 55.0, ground_surface_y - 14.0)
+			crate_ref.scale = Vector2(0.11, 0.11)
 
 			var crate_pop := level_node.create_tween()
-			crate_pop.tween_property(crate_delivered, "scale", Vector2(0.15, 0.08), 0.08)
-			crate_pop.tween_property(crate_delivered, "scale", Vector2(0.11, 0.11), 0.12).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+			crate_pop.tween_property(crate_ref, "scale", Vector2(0.15, 0.08), 0.08)
+			crate_pop.tween_property(crate_ref, "scale", Vector2(0.11, 0.11), 0.12).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 		var step_dur := 0.08
 		var num_cycles := 11

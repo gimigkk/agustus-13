@@ -36,7 +36,7 @@ func show_letter(letter_id: int) -> void:
 	_animate_in()
 
 ## Shows a custom title and text message inside the popup panel.
-func display_message(title: String, message: String) -> void:
+func display_message(_title: String, message: String) -> void:
 	letter_image.hide()
 	fallback_label.text = message
 	fallback_label.show()

@@ -3,6 +3,9 @@
 [ext_resource type="Script" path="res://scenes/ui/letter_inventory.gd" id="1_inv_script"]
 [ext_resource type="Texture2D" uid="uid://cy88j2d0e7y" path="res://assets/objects/inventory_crate.png" id="2_crate"]
 [ext_resource type="Shader" uid="uid://c6a855364s7e" path="res://shaders/menu_blur.gdshader" id="3_blur"]
+[ext_resource type="FontFile" path="res://assets/fonts/GentiumBookPlus-Bold.ttf" id="4_gentium_bold"]
+[ext_resource type="FontFile" path="res://assets/fonts/GentiumBookPlus-Regular.ttf" id="5_gentium_reg"]
+[ext_resource type="Script" path="res://scenes/ui/uiverse_button.gd" id="6_uiverse"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_left"]
 size = Vector2(80, 650)
@@ -84,6 +87,7 @@ theme_override_constants/separation = 40
 [node name="CounterLabel" type="Label" parent="Control/CenterContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85098, 0.4, 1)
+theme_override_fonts/font = ExtResource("4_gentium_bold")
 theme_override_font_sizes/font_size = 28
 text = "0 / 21 Letters"
 horizontal_alignment = 1
@@ -118,45 +122,53 @@ shape = SubResource("RectangleShape2D_bottom")
 process_mode = 3
 
 [node name="DetailsPanel" type="PanelContainer" parent="Control/CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(422, 120)
+custom_minimum_size = Vector2(422, 100)
 layout_mode = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="Control/CenterContainer/VBoxContainer/DetailsPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
+theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_bottom = 15
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer"]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
-[node name="TitleLabel" type="Label" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85098, 0.4, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_fonts/font = ExtResource("4_gentium_bold")
+theme_override_font_sizes/font_size = 26
 text = "Select a letter"
 
-[node name="AuthorLabel" type="Label" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="AuthorLabel" type="Label" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_fonts/font = ExtResource("5_gentium_reg")
+theme_override_font_sizes/font_size = 19
 text = "letter by xxxx"
 
-[node name="ReadButton" type="Button" parent="Control/CenterContainer/VBoxContainer/DetailsPanel/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(100, 0)
+[node name="ButtonContainer" type="HBoxContainer" parent="Control/CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(422, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-disabled = true
-text = "Read"
+theme_override_constants/separation = 16
 
-[node name="CloseBtn" type="Button" parent="Control/CenterContainer/VBoxContainer"]
+[node name="CloseBtn" type="Control" parent="Control/CenterContainer/VBoxContainer/ButtonContainer"]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+size_flags_horizontal = 3
+script = ExtResource("6_uiverse")
 text = "Back to Game"
+font_size = 22
+
+[node name="ReadBtn" type="Control" parent="Control/CenterContainer/VBoxContainer/ButtonContainer"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("6_uiverse")
+text = "Open Letter"
+font_size = 22
+disabled = true

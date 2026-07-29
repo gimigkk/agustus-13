@@ -1,10 +1,19 @@
-[gd_scene load_steps=6 format=3 uid="uid://c8hud0000001"]
+[gd_scene load_steps=9 format=3 uid="uid://c8hud0000001"]
 
 [ext_resource type="Script" path="res://scenes/ui/hud.gd" id="1_hud_script"]
 [ext_resource type="PackedScene" uid="uid://c8letterinv0001" path="res://scenes/ui/letter_inventory.tscn" id="2_letter_inv"]
 [ext_resource type="PackedScene" uid="uid://c8letterpopup001" path="res://scenes/ui/letter_popup.tscn" id="3_letter_popup"]
-[ext_resource type="Script" path="res://scenes/ui/uiverse_button.gd" id="4_uiverse_script"]
 [ext_resource type="Texture2D" path="res://scenes/ui/cog_icon.svg" id="5_cog_icon"]
+[ext_resource type="Texture2D" path="res://assets/objects/inventory_mail.png" id="6_mail_icon"]
+[ext_resource type="FontFile" path="res://assets/fonts/GentiumBookPlus-Bold.ttf" id="7_gentium_bold"]
+
+[sub_resource type="Gradient" id="Gradient_top_bar"]
+colors = PackedColorArray(0, 0, 0, 0.85, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_top_bar"]
+gradient = SubResource("Gradient_top_bar")
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
 
 [node name="HUD" type="CanvasLayer"]
 layer = 15
@@ -20,33 +29,72 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="TopBar" type="PanelContainer" parent="Control"]
+[node name="TopGradient" type="TextureRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 140.0
+grow_horizontal = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_top_bar")
+expand_mode = 1
+
+[node name="TopBar" type="MarginContainer" parent="Control"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 70.0
 grow_horizontal = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
 
-[node name="MarginContainer" type="MarginContainer" parent="Control/TopBar"]
-layout_mode = 2
-theme_override_constants/margin_left = 15
-theme_override_constants/margin_right = 15
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Control/TopBar/MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/TopBar"]
 layout_mode = 2
 alignment = 1
 
-[node name="LetterCounterBtn" type="Button" parent="Control/TopBar/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(240, 48)
+[node name="LetterCounterBtn" type="Button" parent="Control/TopBar/HBoxContainer"]
+custom_minimum_size = Vector2(200, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 focus_mode = 0
-theme_override_font_sizes/font_size = 20
-text = "0 / 21 Letters"
+flat = true
+
+[node name="Content" type="HBoxContainer" parent="Control/TopBar/HBoxContainer/LetterCounterBtn"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
 alignment = 0
 
-[node name="MenuBtn" type="TextureButton" parent="Control/TopBar/MarginContainer/HBoxContainer"]
+[node name="MailIcon" type="TextureRect" parent="Control/TopBar/HBoxContainer/LetterCounterBtn/Content"]
+custom_minimum_size = Vector2(48, 32)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("6_mail_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CounterLabel" type="Label" parent="Control/TopBar/HBoxContainer/LetterCounterBtn/Content"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("7_gentium_bold")
+theme_override_font_sizes/font_size = 24
+text = "0 / 21 Letters"
+vertical_alignment = 1
+
+[node name="MenuBtn" type="TextureButton" parent="Control/TopBar/HBoxContainer"]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_vertical = 4
@@ -55,7 +103,7 @@ texture_normal = ExtResource("5_cog_icon")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Shadow" type="TextureRect" parent="Control/TopBar/MarginContainer/HBoxContainer/MenuBtn"]
+[node name="Shadow" type="TextureRect" parent="Control/TopBar/HBoxContainer/MenuBtn"]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15

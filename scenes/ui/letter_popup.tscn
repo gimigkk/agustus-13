@@ -4,6 +4,7 @@
 [ext_resource type="Shader" uid="uid://c6a855364s7e" path="res://shaders/menu_blur.gdshader" id="2_blur"]
 [ext_resource type="Texture2D" path="res://assets/ui/close_icon.svg" id="3_close"]
 [ext_resource type="Shader" path="res://shaders/focus_blur.gdshader" id="4_focus_blur"]
+[ext_resource type="FontFile" path="res://assets/fonts/GentiumBookPlus-Regular.ttf" id="5_gentium_reg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("2_blur")
@@ -70,6 +71,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_fonts/font = ExtResource("5_gentium_reg")
 theme_override_font_sizes/font_size = 20
 text = "Letter content..."
 horizontal_alignment = 1

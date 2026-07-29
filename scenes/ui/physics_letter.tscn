@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scenes/ui/physics_letter.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dhmvj3n8k1b0h" path="res://assets/objects/inventory_mail.png" id="2_tex"]
 [ext_resource type="Shader" path="res://shaders/ui_shadow.gdshader" id="3_shadow"]
+[ext_resource type="FontFile" path="res://assets/fonts/GentiumBookPlus-Bold.ttf" id="4_gentium_bold"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mail"]
 size = Vector2(140, 95)
@@ -38,6 +39,7 @@ offset_right = 30.0
 offset_bottom = 25.0
 rotation = -0.349066
 theme_override_colors/font_color = Color(0.18, 0.22, 0.35, 1.0)
+theme_override_fonts/font = ExtResource("4_gentium_bold")
 theme_override_font_sizes/font_size = 28
 text = "#1"
 horizontal_alignment = 1
