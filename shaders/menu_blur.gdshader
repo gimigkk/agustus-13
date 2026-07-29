@@ -1,7 +1,7 @@
 shader_type canvas_item;
 
 uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
-uniform float blur_radius : hint_range(0.0, 10.0) = 4.0;
+uniform float blur_radius : hint_range(0.0, 30.0) = 4.0;
 uniform vec4 dim_color : source_color = vec4(0.0, 0.0, 0.0, 0.2);
 
 void fragment() {
@@ -31,5 +31,5 @@ void fragment() {
 	
 	col /= total_weight;
 	
-	COLOR = vec4(mix(col.rgb, dim_color.rgb, dim_color.a), 1.0);
+	COLOR = vec4(mix(col.rgb, dim_color.rgb, dim_color.a), 1.0) * vec4(1.0, 1.0, 1.0, COLOR.a);
 }
