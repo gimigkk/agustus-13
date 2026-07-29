@@ -5,6 +5,8 @@ extends Node
 ## Emitted when a letter or bundle of letters is collected in-game.
 ## Listened to by: HUD (_on_letter_collected triggers flying paper UI animation).
 signal letter_collected(letter_id: int, message: String, total_collected: int, collect_pos: Vector2)
+## Emitted when a collected letter is opened and read by the player.
+signal letter_read(letter_id: int)
 
 ## Total number of collectible letters in the game.
 const TOTAL_LETTERS: int = 21
@@ -12,6 +14,7 @@ const TOTAL_LETTERS: int = 21
 var messages: Dictionary = {}
 var collected_letter_ids: Array = []
 var global_letter_ids: Array = []
+var read_letter_ids: Array = []
 
 func _ready() -> void:
 	load_messages()
@@ -34,6 +37,26 @@ func _on_save_loaded(data: Dictionary) -> void:
 			var int_id := int(item)
 			if int_id >= 1 and int_id <= TOTAL_LETTERS and not global_letter_ids.has(int_id):
 				global_letter_ids.append(int_id)
+
+	if data.has("read_letter_ids"):
+		var raw_read: Array = data["read_letter_ids"]
+		read_letter_ids.clear()
+		for item in raw_read:
+			var int_id := int(item)
+			if int_id >= 1 and int_id <= TOTAL_LETTERS and not read_letter_ids.has(int_id):
+				read_letter_ids.append(int_id)
+
+## Returns true if the specified letter ID has been read.
+func is_letter_read(letter_id: int) -> bool:
+	return read_letter_ids.has(int(letter_id))
+
+## Marks a letter as read, persists state, and emits letter_read signal.
+func mark_letter_as_read(letter_id: int) -> void:
+	var int_id := int(letter_id)
+	if int_id >= 1 and int_id <= TOTAL_LETTERS and not read_letter_ids.has(int_id):
+		read_letter_ids.append(int_id)
+		SaveManager.save_game(Vector2.ZERO, collected_letter_ids, global_letter_ids)
+		letter_read.emit(int_id)
 
 ## Parses messages from the letters JSON data configuration.
 func load_messages() -> void:

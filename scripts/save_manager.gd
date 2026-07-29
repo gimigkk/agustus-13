@@ -15,6 +15,7 @@ var current_save_data: Dictionary = {
 	"player_pos_y": 1180.0,
 	"collected_letters": [],
 	"global_collected_letters": [],
+	"read_letter_ids": [],
 	"has_save": false,
 	"has_finished_game": false,
 	"is_completed_run": false
@@ -42,16 +43,22 @@ func save_current_state() -> bool:
 	if not player.is_physics_processing():
 		return false
 		
-	return save_game(player.global_position, LetterManager.collected_letter_ids, LetterManager.global_letter_ids)
+	var read_ids = LetterManager.read_letter_ids if LetterManager else []
+	return save_game(player.global_position, LetterManager.collected_letter_ids, LetterManager.global_letter_ids, read_ids)
 
-func save_game(player_pos: Vector2, collected_letters: Array, global_letters: Array) -> bool:
+func save_game(player_pos: Vector2, collected_letters: Array, global_letters: Array, read_letters: Array = []) -> bool:
 	var finished = current_save_data.get("has_finished_game", false)
 	var completed = current_save_data.get("is_completed_run", false)
+	var actual_read_letters = read_letters
+	if actual_read_letters.is_empty() and LetterManager:
+		actual_read_letters = LetterManager.read_letter_ids
+		
 	var data := {
 		"player_pos_x": player_pos.x,
 		"player_pos_y": player_pos.y,
 		"collected_letters": collected_letters,
 		"global_collected_letters": global_letters,
+		"read_letter_ids": actual_read_letters,
 		"has_save": true,
 		"has_finished_game": finished,
 		"is_completed_run": completed,
@@ -97,6 +104,7 @@ func load_game() -> Dictionary:
 
 func clear_save() -> void:
 	var global_letters = current_save_data.get("global_collected_letters", [])
+	var read_letters = current_save_data.get("read_letter_ids", [])
 	var finished_game = current_save_data.get("has_finished_game", false)
 	
 	current_save_data = {
@@ -104,6 +112,7 @@ func clear_save() -> void:
 		"player_pos_y": 1180.0,
 		"collected_letters": [],
 		"global_collected_letters": global_letters,
+		"read_letter_ids": read_letters,
 		"has_save": false,
 		"has_finished_game": finished_game,
 		"is_completed_run": false
@@ -126,6 +135,7 @@ func clear_all_save_data() -> void:
 		"player_pos_y": 1180.0,
 		"collected_letters": [],
 		"global_collected_letters": [],
+		"read_letter_ids": [],
 		"has_save": false,
 		"has_finished_game": false
 	}
@@ -134,3 +144,5 @@ func clear_all_save_data() -> void:
 		LetterManager.collected_letter_ids.clear()
 		if "global_letter_ids" in LetterManager:
 			LetterManager.global_letter_ids.clear()
+		if "read_letter_ids" in LetterManager:
+			LetterManager.read_letter_ids.clear()

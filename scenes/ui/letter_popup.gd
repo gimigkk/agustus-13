@@ -15,6 +15,7 @@ func _ready() -> void:
 
 ## Displays the letter image or text content for a specific letter ID.
 func show_letter(letter_id: int) -> void:
+	LetterManager.mark_letter_as_read(letter_id)
 	var data = LetterManager.get_letter_data(letter_id)
 	var img_path = data.get("image", "")
 	

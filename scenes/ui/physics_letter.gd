@@ -13,7 +13,11 @@ var _initial_rotation: float = 0.0
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var shadow_sprite: Sprite2D = $ShadowSprite
+@onready var glow_sprite: Sprite2D = get_node_or_null("GlowSprite")
 @onready var id_label: Label = $Label
+
+var _pulse_time: float = 0.0
+var _is_unread: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -21,6 +25,27 @@ func _ready() -> void:
 	input_pickable = true
 	shadow_sprite.top_level = true
 	id_label.text = "#%d" % letter_id
+	_pulse_time = randf_range(0.0, 6.28)
+	
+	_update_read_status()
+	if LetterManager and LetterManager.has_signal("letter_read"):
+		LetterManager.letter_read.connect(_on_letter_read)
+
+func _update_read_status() -> void:
+	if LetterManager:
+		_is_unread = not LetterManager.is_letter_read(letter_id)
+	else:
+		_is_unread = false
+	if glow_sprite:
+		glow_sprite.visible = _is_unread
+
+func _on_letter_read(p_letter_id: int) -> void:
+	if p_letter_id == letter_id and _is_unread:
+		_is_unread = false
+		if glow_sprite:
+			var tw = create_tween()
+			tw.tween_property(glow_sprite, "modulate:a", 0.0, 0.4).set_ease(Tween.EASE_OUT)
+			tw.tween_callback(func(): if is_instance_valid(glow_sprite): glow_sprite.hide())
 
 func _start_drag() -> void:
 	_dragging = true
@@ -54,7 +79,7 @@ func _stop_drag() -> void:
 	_drag_tween.tween_property(self, "_shadow_offset", 3.0, 0.15)
 	_drag_tween.tween_property(shadow_sprite.material, "shader_parameter/blur_amount", 0.0, 0.15)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _dragging:
 		global_position = get_global_mouse_position() + _drag_offset
 		global_position.x = clampf(global_position.x, 80.0, 720.0 - 80.0)
@@ -62,6 +87,16 @@ func _process(_delta: float) -> void:
 		
 	shadow_sprite.global_position = global_position + Vector2(0, _shadow_offset)
 	shadow_sprite.rotation = rotation
+	
+	if glow_sprite and _is_unread and glow_sprite.visible:
+		_pulse_time += delta * 4.0
+		var pulse := (sin(_pulse_time) + 1.0) * 0.5 # 0.0 to 1.0
+		glow_sprite.modulate = Color(1.0, 0.88, 0.45, lerpf(0.35, 0.95, pulse))
+		var base_scale_x: float = sprite.scale.x * 1.14
+		var base_scale_y: float = sprite.scale.y * 1.20
+		var pulse_x: float = pulse * 0.025
+		var pulse_y: float = pulse * 0.030
+		glow_sprite.scale = Vector2(base_scale_x + pulse_x, base_scale_y + pulse_y)
 
 # We also need to stop dragging if the mouse button is released outside the collision shape
 func _input(event: InputEvent) -> void:
