@@ -79,8 +79,9 @@
 - [X] Completely change the letter system so it's actually a picture of a decorated letter (digital ofc), not a text
 
 ### Phase 4: The Birthday Surprise & Release
+- [ ] Title design
 - [ ] Implement custom SFX and YouTube-sourced BGM (ensure credits are included at the end).
-- [ ] fix the goddamn button design
+- [X] fix the goddamn button design
 - [x] Create the "Summit" scene—a celebratory screen that triggers when the top is reached (checking if all 21 letters are found).
 - [ ] Block the well if not all letters are collected, make the counter shake as an indicator.
 - [X] Playtest thoroughly to ensure it is fun and not overly frustrating.

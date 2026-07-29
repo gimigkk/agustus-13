@@ -63,8 +63,8 @@ func _ready() -> void:
 
 func _setup_nodes() -> void:
 	focus_mode = Control.FOCUS_NONE
-	if custom_minimum_size.y < 70:
-		custom_minimum_size.y = 70
+	if custom_minimum_size == Vector2.ZERO:
+		custom_minimum_size = Vector2(0, 70)
 	
 	var old_base = get_node_or_null("BasePanel")
 	if old_base:

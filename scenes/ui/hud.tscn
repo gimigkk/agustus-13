@@ -46,17 +46,32 @@ theme_override_font_sizes/font_size = 20
 text = "0 / 21 Letters"
 alignment = 0
 
-[node name="MenuBtn" type="Control" parent="Control/TopBar/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(44, 44)
+[node name="MenuBtn" type="TextureButton" parent="Control/TopBar/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_vertical = 4
 focus_mode = 0
-script = ExtResource("4_uiverse_script")
-text = ""
-icon_texture = ExtResource("5_cog_icon")
-offset_rest = -4.0
-offset_hover = -6.0
-offset_pressed = 0.0
+texture_normal = ExtResource("5_cog_icon")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Shadow" type="TextureRect" parent="Control/TopBar/MarginContainer/HBoxContainer/MenuBtn"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 3.0
+offset_right = 2.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_cog_icon")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(0, 0, 0, 0.5)
 
 [node name="LetterInventory" parent="." instance=ExtResource("2_letter_inv")]
 

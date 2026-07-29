@@ -545,7 +545,7 @@ scale = Vector2(1.16, 6.64)
 [node name="Collectibles" type="Node2D" parent="."]
 
 [node name="Letter1" parent="Collectibles" instance=ExtResource("4_letter")]
-position = Vector2(-284, 968)
+position = Vector2(-284, 991)
 letter_count = 3
 
 [node name="Letter4" parent="Collectibles" instance=ExtResource("4_letter")]
