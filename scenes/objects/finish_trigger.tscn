@@ -12,6 +12,11 @@ script = ExtResource("1_finish_script")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_finish")
 
+[node name="WellBarrier" type="StaticBody2D" parent="."]
+
+[node name="BarrierCollision" type="CollisionShape2D" parent="WellBarrier"]
+shape = SubResource("RectangleShape2D_finish")
+
 [node name="Visual" type="Sprite2D" parent="."]
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("2_crate_letters_tex")

@@ -12,6 +12,7 @@ extends Area2D
 @export var pause_before_run: float = 0.4
 
 @onready var visual: Sprite2D = $Visual
+@onready var well_barrier: StaticBody2D = get_node_or_null("WellBarrier")
 
 var is_triggered: bool = false
 var player_ref: CharacterBody2D = null
@@ -22,9 +23,21 @@ var crate_ref: Sprite2D = null
 func _ready() -> void:
 	if not Engine.is_editor_hint():
 		body_entered.connect(_on_body_entered)
+		if LetterManager:
+			LetterManager.letter_collected.connect(func(_id, _msg, _total, _pos): _update_barrier_state())
+		_update_barrier_state()
+
+func _update_barrier_state() -> void:
+	if not LetterManager:
+		return
+	var collected: int = LetterManager.get_collected_count()
+	if is_instance_valid(well_barrier):
+		var shape = well_barrier.get_node_or_null("BarrierCollision") as CollisionShape2D
+		if is_instance_valid(shape):
+			shape.set_deferred("disabled", collected >= required_letters)
 
 # Checks letter collection threshold:
-# - If count < 21: displays incomplete prompt via HUD.
+# - If count < 21: displays incomplete prompt via HUD & blocks/bounces player.
 # - If count >= 21: freezes player & initiates summit cutscene sequence.
 func _on_body_entered(body: Node2D) -> void:
 	if is_triggered or not (body is CharacterBody2D):
@@ -34,8 +47,13 @@ func _on_body_entered(body: Node2D) -> void:
 	
 	if collected >= required_letters:
 		is_triggered = true
+		_update_barrier_state()
 		_play_finish_sequence(body as CharacterBody2D)
 	else:
+		var player = body as CharacterBody2D
+		if is_instance_valid(player):
+			var bounce_dir: float = -1.0 if player.global_position.x < global_position.x else 1.0
+			player.velocity = Vector2(bounce_dir * 220.0, -260.0)
 		_show_incomplete_prompt(collected, required_letters)
 
 func _play_finish_sequence(player: CharacterBody2D) -> void:

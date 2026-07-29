@@ -84,6 +84,6 @@
 - [ ] Implement custom SFX and YouTube-sourced BGM (ensure credits are included at the end).
 - [X] fix the goddamn button design
 - [x] Create the "Summit" scene—a celebratory screen that triggers when the top is reached (checking if all 21 letters are found).
-- [ ] Block the well if not all letters are collected, make the counter shake as an indicator.
+- [x] Block the well if not all letters are collected, make the counter shake as an indicator.
 - [X] Playtest thoroughly to ensure it is fun and not overly frustrating.
 - [ ] Export Android APK. Delivery: Send via WhatsApp (fallback: let her play it directly on my phone).

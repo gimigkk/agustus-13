@@ -43,13 +43,41 @@ func update_counter(count: int) -> void:
 
 
 
-## Displays a prompt informing the player how many letters remain for the full ending.
+## Displays a prompt informing the player how many letters remain for the full ending and shakes counter.
 func show_incomplete_prompt(collected: int, required: int) -> void:
+	shake_counter()
 	var popup_scene = load("res://scenes/ui/letter_popup.tscn")
 	if popup_scene:
 		var popup = popup_scene.instantiate()
 		add_child(popup)
 		popup.display_message("Summit Reached!", "You made it to the top! But you still need to collect all %d letters to unlock the birthday surprise! (%d/%d collected)" % [required, collected, required])
+
+## Shakes the letter counter button as a visual indicator for incomplete letter requirement.
+func shake_counter() -> void:
+	if not letter_counter_btn:
+		return
+	var target_node: Control = letter_counter_btn.get_node_or_null("Content") as Control
+	if not target_node:
+		target_node = letter_counter_btn
+		
+	target_node.pivot_offset = target_node.size * 0.5
+	var orig_pos := target_node.position
+	var orig_color := target_node.modulate
+	
+	# Flash reddish highlight
+	target_node.modulate = Color(1.0, 0.45, 0.45, 1.0)
+	
+	var shake_tween := create_tween()
+	var num_shakes := 10
+	for i in range(num_shakes):
+		var offset := orig_pos + Vector2(randf_range(-14.0, 14.0), randf_range(-6.0, 6.0))
+		var rot := randf_range(-8.0, 8.0)
+		shake_tween.tween_property(target_node, "position", offset, 0.03)
+		shake_tween.parallel().tween_property(target_node, "rotation_degrees", rot, 0.03)
+	
+	shake_tween.tween_property(target_node, "position", orig_pos, 0.06)
+	shake_tween.parallel().tween_property(target_node, "rotation_degrees", 0.0, 0.06)
+	shake_tween.parallel().tween_property(target_node, "modulate", orig_color, 0.15)
 
 ## Callback when a letter is collected in-game.
 func _on_letter_collected(_id: int, _msg: String, total: int, collect_pos: Vector2 = Vector2.ZERO) -> void:
