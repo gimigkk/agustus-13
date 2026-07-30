@@ -1,8 +1,9 @@
 {
   "1": {
-    "text": "Happy 21st Birthday! The climb begins...",
-    "author": "Unknown",
-    "image": "res://assets/ui/placeholder_decorated_letter.png"
+    "title": "Fiisa",
+    "author": "Fiisa",
+    "image": "res://assets/letters/Fiisa.png",
+    "text": "Fiisa"
   },
   "2": {
     "text": "Remember when we first met?",

@@ -96,6 +96,7 @@ func get_letter_data(letter_id: int) -> Dictionary:
 				"image": "res://assets/ui/placeholder_decorated_letter.png"
 			}
 	return {
+		"title": "Letter #%d" % letter_id,
 		"text": "Letter #%d: A special memory..." % letter_id,
 		"author": "Unknown",
 		"image": "res://assets/ui/placeholder_decorated_letter.png"

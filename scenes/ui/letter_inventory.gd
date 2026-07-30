@@ -116,7 +116,11 @@ func _populate_crate() -> void:
 func _on_letter_selected(letter_id: int) -> void:
 	_selected_letter_id = letter_id
 	var data = LetterManager.get_letter_data(letter_id)
-	title_label.text = "Letter #%d" % letter_id
+	var letter_title: String = data.get("title", "")
+	if letter_title != "":
+		title_label.text = letter_title
+	else:
+		title_label.text = "Letter #%d" % letter_id
 	author_label.text = "letter by " + data.get("author", "Unknown")
 	read_button.disabled = false
 	

@@ -9,6 +9,8 @@ android/
 
 # Personal data privacy
 letters.json
+assets/letters/
+assets/ui/placeholder_decorated_letter.png*
 
 # Exported assets & level maps
 exports/
